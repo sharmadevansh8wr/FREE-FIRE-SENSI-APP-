@@ -1,1082 +1,1378 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="hi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sensi Viewer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Macro App Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <style>
-    body { 
-      background-color: #111827; 
-      font-family: 'Poppins', sans-serif; 
-      overflow-x: hidden;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .card { 
-      background-color: #1f2937; 
-      border: 1px solid #374151; 
-      transition: 0.3s; 
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #111;
+      color: #fff;
+      -ms-content-zooming: none;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+      min-height: 100vh;
     }
-    .card:hover { 
-      transform: translateY(-4px); 
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
+
+    html, body {
+      touch-action: manipulation;
+      height: 100%;
     }
-    
-    /* Enhanced Animated Background */
-    .bg-animation {
+
+    #particles-js {
       position: fixed;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
       z-index: -1;
-      overflow: hidden;
-    }
-    
-    .bg-particle {
-      position: absolute;
-      border-radius: 50%;
-      background: linear-gradient(45deg, #dc2626, #7c2d12, #991b1b, #431407);
-      opacity: 0.1;
-      animation: float 15s infinite ease-in-out;
-    }
-    
-    .particle-1 {
-      width: 300px;
-      height: 300px;
-      top: 10%;
-      left: 5%;
-      animation-delay: 0s;
-    }
-    
-    .particle-2 {
-      width: 200px;
-      height: 200px;
-      top: 60%;
-      left: 80%;
-      animation-delay: 5s;
-    }
-    
-    .particle-3 {
-      width: 250px;
-      height: 250px;
-      top: 80%;
-      left: 20%;
-      animation-delay: 10s;
-    }
-    
-    .particle-4 {
-      width: 180px;
-      height: 180px;
-      top: 20%;
-      left: 70%;
-      animation-delay: 3s;
-    }
-    
-    .particle-5 {
-      width: 220px;
-      height: 220px;
-      top: 70%;
-      left: 10%;
-      animation-delay: 7s;
-    }
-    
-    .particle-6 {
-      width: 150px;
-      height: 150px;
-      top: 40%;
-      left: 85%;
-      animation-delay: 12s;
-    }
-    
-    /* Crosshair Animation */
-    .crosshair {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: transparent;
-      border: 2px solid rgba(220, 38, 38, 0.3);
-      border-radius: 50%;
-      animation: crosshairPulse 4s infinite ease-in-out;
-    }
-    
-    .crosshair-1 {
-      top: 15%;
-      left: 15%;
-      animation-delay: 0s;
-    }
-    
-    .crosshair-2 {
-      top: 75%;
-      left: 75%;
-      animation-delay: 2s;
-    }
-    
-    .crosshair-3 {
-      top: 25%;
-      left: 85%;
-      animation-delay: 1s;
-    }
-    
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0) scale(1) rotate(0deg);
-      }
-      33% {
-        transform: translateY(-20px) scale(1.05) rotate(120deg);
-      }
-      66% {
-        transform: translateY(10px) scale(0.95) rotate(240deg);
-      }
-    }
-    
-    @keyframes crosshairPulse {
-      0%, 100% {
-        transform: scale(1);
-        opacity: 0.3;
-      }
-      50% {
-        transform: scale(1.2);
-        opacity: 0.6;
-      }
-    }
-    
-    /* Bottom Navigation */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: #1f2937;
-      border-top: 1px solid #374151;
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      z-index: 100;
-    }
-    
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #9ca3af;
-      transition: color 0.3s;
-      cursor: pointer;
-    }
-    
-    .nav-item.active {
-      color: #dc2626;
-    }
-    
-    .nav-item i {
-      font-size: 20px;
-      margin-bottom: 4px;
-    }
-    
-    .nav-item span {
-      font-size: 12px;
-    }
-    
-    /* Pages */
-    .page {
-      display: none;
-    }
-    
-    .page.active {
-      display: block;
-    }
-    
-    /* Auth Pages */
-    .auth-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    
-    .auth-card {
-      background: rgba(31, 41, 55, 0.9);
-      backdrop-filter: blur(10px);
-      border: 1px solid #374151;
-      border-radius: 16px;
-      padding: 32px;
-      width: 100%;
-      max-width: 400px;
-      animation: slideUp 0.6s ease-out;
-    }
-    
-    .auth-tabs {
-      display: flex;
-      margin-bottom: 24px;
-      border-bottom: 1px solid #374151;
-    }
-    
-    .auth-tab {
-      flex: 1;
-      text-align: center;
-      padding: 12px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-    }
-    
-    .auth-tab.active {
-      border-bottom-color: #dc2626;
-      color: #dc2626;
-    }
-    
-    .auth-form {
-      display: none;
-    }
-    
-    .auth-form.active {
-      display: block;
-      animation: fadeIn 0.5s ease-out;
-    }
-    
-    /* Form Styles */
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #d1d5db;
-    }
-    
-    .form-input {
-      width: 100%;
-      padding: 12px 16px;
-      background-color: #1f2937;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      color: white;
-      transition: border-color 0.3s;
-    }
-    
-    .form-input:focus {
-      outline: none;
-      border-color: #dc2626;
-    }
-    
-    .auth-btn {
-      background-color: #dc2626;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      width: 100%;
-      margin-top: 10px;
-    }
-    
-    .auth-btn:hover {
-      background-color: #b91c1c;
-    }
-    
-    .save-btn {
-      background-color: #dc2626;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      width: 100%;
-      margin-top: 10px;
-    }
-    
-    .save-btn:hover {
-      background-color: #b91c1c;
-    }
-    
-    .back-btn {
-      background-color: #374151;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    
-    .back-btn:hover {
-      background-color: #4b5563;
-    }
-    
-    /* Profile Section */
-    .profile-header {
-      background: linear-gradient(135deg, #dc2626, #7c2d12);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    
-    .profile-pic {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 4px solid white;
-      margin: 0 auto 16px;
-      background-color: #1f2937;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .profile-pic img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .change-photo-btn {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    
-    .settings-option {
-      background-color: #1f2937;
-      border: 1px solid #374151;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-    
-    .settings-option:hover {
-      transform: translateX(8px);
-      border-color: #dc2626;
-    }
-    
-    /* Toggle Switch */
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 30px;
-    }
-    
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #374151;
-      transition: .4s;
-      border-radius: 34px;
-    }
-    
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 22px;
-      width: 22px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    
-    input:checked + .toggle-slider {
-      background-color: #dc2626;
-    }
-    
-    input:checked + .toggle-slider:before {
-      transform: translateX(30px);
-    }
-    
-    /* Animations */
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-    
-    /* Pulse animation for empty state */
-    .pulse-glow {
-      animation: pulseGlow 2s infinite;
-    }
-    
-    @keyframes pulseGlow {
-      0% {
-        box-shadow: 0 0 5px rgba(220, 38, 38, 0.4);
-      }
-      50% {
-        box-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
-      }
-      100% {
-        box-shadow: 0 0 5px rgba(220, 38, 38, 0.4);
-      }
-    }
-    
-    /* Stats Container */
-    .stats-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 16px;
-      gap: 24px;
-    }
-    
-    .stat-item {
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    
-    .stat-item:hover {
-      transform: scale(1.05);
-    }
-    
-    .stat-value {
-      font-size: 18px;
-      font-weight: bold;
-    }
-    
-    .stat-label {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.8);
     }
 
-    /* Share Modal */
-    .share-modal {
+    /* Auth Pages */
+    .auth-page {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .auth-container {
+      background: rgba(30, 30, 30, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(79, 70, 229, 0.3);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .auth-header h1 {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .auth-header p {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .auth-form .form-group {
+      margin-bottom: 20px;
+    }
+
+    .auth-form label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ddd;
+      font-size: 0.9rem;
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .auth-form input:focus {
+      border-color: #4f46e5;
+    }
+
+    .auth-form input::placeholder {
+      color: #666;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform 0.3s;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 20px;
+      color: #aaa;
+    }
+
+    .auth-switch a {
+      color: #4f46e5;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-switch a:hover {
+      text-decoration: underline;
+    }
+
+    .auth-message {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      min-height: 20px;
+    }
+
+    .auth-message.error {
+      color: #dc2626;
+    }
+
+    .auth-message.success {
+      color: #10b981;
+    }
+
+    /* Header Styles */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: #1f1f1f;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: none;
+    }
+
+    .store-title {
+      font-size: 1.8rem;
+      background: linear-gradient(80deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .icon {
+      cursor: pointer;
+      font-size: 1.5rem;
+      position: relative;
+    }
+
+    #notif-dot {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+    }
+
+    .dropdown-menu {
+      display: none;
+      flex-direction: column;
+      background: #222;
+      position: absolute;
+      top: 60px;
+      right: 1rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      z-index: 100;
+    }
+
+    .dropdown-menu a, .dropdown-menu .menu-item {
+      color: #ccc;
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+
+    .dropdown-menu .menu-item:hover {
+      background: #333;
+      border-radius: 5px;
+    }
+
+    .balance-btn {
+      cursor: pointer;
+      font-size: 0.9rem;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .balance-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Main App Store Page */
+    .main-page {
+      display: none;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    .search-bar {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .search-bar-inner {
+      display: flex;
+      background: #333;
+      border-radius: 50px;
+      padding: 0.2rem;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    #searchInput {
+      flex: 1;
+      border: none;
+      border-radius: 50px 0 0 50px;
+      padding: 0.8rem;
+      background: transparent;
+      color: #fff;
+      outline: none;
+    }
+
+    #categorySelect {
+      border: none;
+      background: transparent;
+      color: #fff;
+      padding: 0 1rem;
+      border-radius: 0 50px 50px 0;
+      outline: none;
+    }
+
+    #app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 12px;
+      justify-items: center;
+    }
+
+    .app-card {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      width: 100%;
+      max-width: 120px;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .app-card:hover {
+      transform: scale(1.03);
+    }
+
+    .app-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .app-card h3 {
+      font-size: 1rem;
+      margin: 0.5rem 0 0.2rem;
+    }
+
+    .app-card p {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin: 0;
+    }
+
+    .view-btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.75rem;
+      background: linear-gradient(90deg, #3b82f6, #06b6d4);
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+
+    /* Notifications Modal */
+    .notifications-container {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .notifications-content {
+      background: #222;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .notifications-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .notifications-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .notification-item {
+      background: #333;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .notification-time {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    /* Payment Page */
+    .payment-page {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .payment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: #1f1f1f;
+    }
+
+    .payment-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .payment-container {
+      max-width: 500px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    .payment-card {
+      background: #1e1e1e;
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .qr-container {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1.5rem 0;
+      display: inline-block;
+    }
+
+    .qr-code {
+      width: 200px;
+      height: 200px;
+      background: #f0f0f0;
+      border-radius: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
-    }
-
-    .share-content {
-      background: #1f2937;
-      border-radius: 16px;
-      padding: 24px;
-      max-width: 400px;
-      width: 90%;
+      font-size: 0.8rem;
+      color: #333;
       text-align: center;
     }
 
-    .share-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin: 20px 0;
+    .qr-code img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 5px;
     }
 
-    .share-option {
-      background: #374151;
-      border: 1px solid #4b5563;
-      border-radius: 12px;
-      padding: 16px;
+    .payment-instructions {
+      background: #333;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      text-align: left;
+    }
+
+    .instructions-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #4f46e5;
+    }
+
+    .instructions-list {
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+
+    .instructions-list li {
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .amount-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 1.5rem 0;
+    }
+
+    .amount-option {
+      background: #333;
+      border: 2px solid transparent;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
       cursor: pointer;
+      font-weight: 600;
       transition: all 0.3s;
     }
 
-    .share-option:hover {
-      background: #dc2626;
-      transform: translateY(-2px);
+    .amount-option:hover {
+      background: #444;
     }
 
-    .share-link {
-      background: #374151;
-      border: 1px solid #4b5563;
-      border-radius: 8px;
-      padding: 12px;
-      margin: 16px 0;
-      word-break: break-all;
+    .amount-option.selected {
+      border-color: #4f46e5;
+      background: #2a2a2a;
+    }
+
+    .custom-amount {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: #333;
+      color: white;
+      margin: 10px 0;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .upi-id {
+      background: #333;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-family: monospace;
+      font-size: 1.1rem;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
 
     .copy-btn {
+      background: #4f46e5;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+
+    /* UTR Modal */
+    .utr-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+    }
+
+    .utr-modal-content {
+      background: #1e1e1e;
+      margin: 20% auto;
+      padding: 2rem;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #4f46e5;
+    }
+
+    .utr-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #4f46e5;
+    }
+
+    .utr-input {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: #333;
+      color: white;
+      margin: 1rem 0;
+      font-size: 1rem;
+    }
+
+    .utr-note {
+      font-size: 0.9rem;
+      color: #ffaa00;
+      margin-bottom: 1.5rem;
+    }
+
+    .utr-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .utr-submit {
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .utr-cancel {
+      background: #dc2626;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    /* Admin Panel */
+    .admin-panel {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 10000;
+      overflow-y: auto;
+      padding: 2rem 1rem;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .admin-title {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    .request-card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 5px solid #f59e0b;
+    }
+
+    .request-card.approved {
+      border-left-color: #10b981;
+      opacity: 0.7;
+    }
+
+    .request-amount {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4f46e5;
+    }
+
+    .request-detail {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin: 0.3rem 0;
+    }
+
+    .approve-btn {
+      background: #10b981;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+
+    .reject-btn {
+      background: #dc2626;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* App Details Page */
+    .app-details-page {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .details-container {
+      max-width: 800px;
+      margin: auto;
+      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .details-app-logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      object-fit: cover;
+      background: #333;
+    }
+
+    .details-title {
+      font-size: 1.8rem;
+    }
+
+    .version {
+      font-size: 0.9rem;
+      color: #bbb;
+    }
+
+    #appDescription {
+      margin-top: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .screenshots {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+    }
+
+    .screenshots img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 15px;
+      background: #222;
+    }
+
+    .purchase-section {
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .purchase-info {
+      background: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin-bottom: 1.5rem;
+    }
+
+    .price-tag {
+      font-size: 2rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .balance-check {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .confirm-purchase-btn {
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 1rem 0;
+      transition: all 0.3s;
+    }
+
+    .confirm-purchase-btn:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+
+    .confirm-purchase-btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .download-section {
+      display: none;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .download-ready {
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      font-weight: bold;
+    }
+
+    .details-download-btn {
+      background: linear-gradient(to right, #6d28d9, #d946ef);
+      color: white;
+      padding: 0.7rem 1.6rem;
+      border: none;
+      border-radius: 999px;
+      font-size: 1rem;
+      margin: 0 auto;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+      width: 200px;
+    }
+
+    .details-download-btn:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    .how-btn {
+      background: linear-gradient(to right, #3b82f6, #06b6d4);
+      margin-top: 1rem;
+    }
+
+    .back-btn {
+      background: #333;
+      color: white;
+      padding: 0.7rem 1.6rem;
+      border: none;
+      border-radius: 999px;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background: #444;
+    }
+
+    .ad-banner {
+      margin-top: 3rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .balance-warning {
+      background: #dc2626;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .balance-success {
+      background: #10b981;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    /* Confirm Purchase Modal */
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    .confirm-modal-content {
+      background: #1e1e1e;
+      margin: 15% auto;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #4f46e5;
+    }
+
+    .confirm-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #4f46e5;
+    }
+
+    .confirm-message {
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .confirm-price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #10b981;
+      margin: 1rem 0;
+    }
+
+    .confirm-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .confirm-yes {
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .confirm-no {
+      background: #dc2626;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    /* Instruction Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal-content {
+      background-color: #00CFFF;
+      margin: 10% auto;
+      padding: 30px 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .modal-content .hindi-text {
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.6;
+      text-shadow: 1px 1px 0 red;
+      color: black;
+    }
+
+    .modal-content .english-text {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1.6;
+      text-shadow: 1px 1px 0 yellow;
+      color: black;
+    }
+
+    .modal-close-btn {
+      background: crimson;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin-top: 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal-close-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* User Info */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #4f46e5;
+      font-weight: 600;
+    }
+
+    .logout-btn {
       background: #dc2626;
       color: white;
       border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
+      padding: 5px 10px;
+      border-radius: 5px;
       cursor: pointer;
-      margin-left: 10px;
-    }
-
-    /* Loading Spinner */
-    .upload-spinner {
-      display: none;
-    }
-    
-    .upload-spinner.active {
-      display: inline-block;
+      font-size: 0.8rem;
     }
   </style>
 </head>
-<body class="text-white">
-  <!-- Enhanced Animated Background -->
-  <div class="bg-animation">
-    <div class="bg-particle particle-1"></div>
-    <div class="bg-particle particle-2"></div>
-    <div class="bg-particle particle-3"></div>
-    <div class="bg-particle particle-4"></div>
-    <div class="bg-particle particle-5"></div>
-    <div class="bg-particle particle-6"></div>
-    <div class="crosshair crosshair-1"></div>
-    <div class="crosshair crosshair-2"></div>
-    <div class="crosshair crosshair-3"></div>
-  </div>
-
-  <!-- Auth Page -->
-  <div id="auth-page" class="page active">
+<body ongesturestart="event.preventDefault()" ongesturechange="event.preventDefault()" ongestureend="event.preventDefault()">
+  <div id="particles-js"></div>
+  
+  <!-- Register Page -->
+  <div id="registerPage" class="auth-page">
     <div class="auth-container">
-      <div class="auth-card">
-        <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-white mb-2">
-            <i class="fa-solid fa-crosshairs text-red-500"></i> Sensi Viewer
-          </h1>
-          <p class="text-gray-400">Free Fire Sensitivity Database</p>
-        </div>
-
-        <div class="auth-tabs">
-          <div class="auth-tab active" id="login-tab">Login</div>
-          <div class="auth-tab" id="register-tab">Register</div>
-        </div>
-
-        <form id="login-form" class="auth-form active">
-          <div class="form-group">
-            <label class="form-label" for="login-email">Email</label>
-            <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="login-password">Password</label>
-            <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
-          </div>
-
-          <button type="submit" class="auth-btn">
-            <i class="fas fa-sign-in-alt mr-2"></i> Login
-          </button>
-
-          <div class="text-center mt-4">
-            <p class="text-gray-400 text-sm">Don't have an account? 
-              <span class="text-red-400 cursor-pointer" id="switch-to-register">Register here</span>
-            </p>
-          </div>
-        </form>
-
-        <form id="register-form" class="auth-form">
-          <div class="form-group">
-            <label class="form-label" for="register-name">Full Name</label>
-            <input type="text" id="register-name" class="form-input" placeholder="Enter your full name" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="register-email">Email</label>
-            <input type="email" id="register-email" class="form-input" placeholder="Enter your email" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="register-password">Password</label>
-            <input type="password" id="register-password" class="form-input" placeholder="Create a password" required>
-          </div>
-
-          <button type="submit" class="auth-btn">
-            <i class="fas fa-user-plus mr-2"></i> Create Account
-          </button>
-
-          <div class="text-center mt-4">
-            <p class="text-gray-400 text-sm">Already have an account? 
-              <span class="text-red-400 cursor-pointer" id="switch-to-login">Login here</span>
-            </p>
-          </div>
-        </form>
+      <div class="auth-header">
+        <h1>Macro App Store</h1>
+        <p>Create your account</p>
       </div>
+      <form class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="registerUsername" placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="registerEmail" placeholder="Enter email" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="registerPassword" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="auth-btn">Register</button>
+        <div class="auth-switch">
+          Already have an account? <a onclick="showLoginPage()">Login</a>
+        </div>
+        <div id="registerMessage" class="auth-message"></div>
+      </form>
     </div>
   </div>
 
-  <!-- Home Page (Sensi Store) -->
-  <div id="home-page" class="page">
-    <div class="p-4 pb-20">
-      <div class="relative text-center mb-4">
-        <h1 class="text-3xl font-bold text-white"><i class="fa-solid fa-crosshairs text-red-500"></i> Sensi Store</h1>
-        <p class="text-gray-400">Browse all Free Fire sensitivities</p>
-        <div class="absolute top-0 right-0">
-          <button id="menu-btn" class="text-white text-2xl p-2"><i class="fas fa-bars"></i></button>
+  <!-- Login Page -->
+  <div id="loginPage" class="auth-page" style="display: none;">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Macro App Store</h1>
+        <p>Login to your account</p>
+      </div>
+      <form class="auth-form" id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter email" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="auth-btn">Login</button>
+        <div class="auth-switch">
+          Don't have an account? <a onclick="showRegisterPage()">Register</a>
+        </div>
+        <div id="loginMessage" class="auth-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Header (Always Visible after login) -->
+  <div class="header" id="mainHeader">
+    <div class="store-title">Macro App Store</div>
+    <div class="icons">
+      <div class="icon" onclick="toggleMenu()">☰</div>
+      <button class="balance-btn" onclick="showPaymentPage()">
+        ₹<span id="balanceAmount">0</span>
+      </button>
+      <div class="icon" onclick="showNotifications()">🔔<span id="notif-dot"></span></div>
+    </div>
+  </div>
+
+  <div class="dropdown-menu" id="dropdownMenu">
+    <div class="menu-item" id="userEmailDisplay">User</div>
+    <a href="https://t.me/xit_macro" target="_blank">Telegram</a>
+    <a href="https://yt.openinapp.co/65rzh" target="_blank">YouTube</a>
+    <a href="https://instagram.com/xit_macro" target="_blank">Instagram</a>
+    <!-- Admin Panel link removed from store -->
+    <div class="menu-item" onclick="logout()">Logout</div>
+  </div>
+
+  <!-- Main App Store Page -->
+  <div id="mainPage" class="main-page">
+    <div class="container">
+      <div class="search-bar">
+        <div class="search-bar-inner">
+          <input type="text" id="searchInput" placeholder="Search">
+          <select id="categorySelect" onchange="filterByCategory()">
+            <option value="All">All</option>
+          </select>
         </div>
       </div>
+      <div id="app-grid"></div>
+    </div>
+  </div>
 
-      <!-- Dropdown Menu -->
-      <div id="menu-dropdown" class="hidden absolute right-4 top-16 bg-gray-800 rounded-lg shadow-lg z-50 w-52 text-left border border-gray-700">
-        <button id="request-btn" class="block w-full text-left px-4 py-2 text-white hover:bg-gray-700">📩 Request Sensi</button>
-        <a href="https://youtube.com/yourchannel" target="_blank" class="block px-4 py-2 text-white hover:bg-gray-700">▶️ YouTube</a>
-        <a href="https://instagram.com/yourprofile" target="_blank" class="block px-4 py-2 text-white hover:bg-gray-700">📸 Instagram</a>
-        <button id="logout-btn-menu" class="block w-full text-left px-4 py-2 text-white hover:bg-gray-700">🚪 Logout</button>
-      </div>
-
-      <!-- Request Modal -->
-      <div id="request-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-        <div class="bg-gray-900 p-6 rounded-lg max-w-md w-full">
-          <h2 class="text-xl font-bold mb-4">📩 Request Custom Sensi</h2>
-          <form id="request-form" class="space-y-3">
-            <input type="text" id="req-name" required placeholder="Your Name" class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-600 text-white">
-            <input type="text" id="req-device" required placeholder="Your Device Name" class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-600 text-white">
-            <textarea id="req-message" required placeholder="Write your request..." class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-600 text-white"></textarea>
-            <div class="flex justify-end space-x-2">
-              <button type="button" id="close-modal" class="px-4 py-2 bg-gray-700 rounded">Cancel</button>
-              <button type="submit" class="px-4 py-2 bg-red-600 rounded text-white">Send Request</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Search -->
-      <div class="max-w-3xl mx-auto grid grid-cols-1 mb-6">
-        <input id="search-input" type="text" placeholder="Search sensitivities..." class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-600">
-      </div>
-
-      <!-- Sensi Cards -->
-      <div class="max-w-5xl mx-auto">
-        <div id="sensi-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div id="loading-state" class="col-span-full text-center py-10">
-            <i class="fas fa-spinner fa-spin fa-2x text-red-500"></i>
-            <p>Loading Sensitivities...</p>
-          </div>
-        </div>
+  <!-- Payment Page -->
+  <div class="payment-page" id="paymentPage">
+    <div class="payment-header">
+      <button class="close-btn" onclick="hidePaymentPage()">← Back</button>
+      <div class="payment-title">Add Money</div>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="payment-container">
+      <div class="payment-card">
+        <div style="font-size: 1.2rem; margin-bottom: 1rem;">Scan QR Code to Pay</div>
         
-        <!-- Empty State -->
-        <div id="empty-state" class="hidden col-span-full text-center py-16">
-          <div class="bg-gray-800 rounded-xl p-8 max-w-md mx-auto pulse-glow">
-            <i class="fas fa-eye-slash text-red-500 text-5xl mb-4"></i>
-            <h3 class="text-xl font-bold mb-2">No Sensitivities Available</h3>
-            <p class="text-gray-400 mb-4">Sensitivities will appear here once the admin adds them to the store.</p>
-            <button class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">
-              Check Back Later
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Settings Page -->
-  <div id="settings-page" class="page">
-    <div class="p-4 pb-20">
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-white"><i class="fa-solid fa-gear text-red-500"></i> Settings</h1>
-        <p class="text-gray-400">Manage your account and preferences</p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <!-- Profile Section -->
-        <div class="profile-header">
-          <div class="profile-pic">
-            <i class="fas fa-user text-white" id="profile-icon"></i>
-            <img id="profile-image" src="" alt="Profile" class="hidden">
-            <button class="change-photo-btn" id="change-photo-btn">
-              <i class="fas fa-camera"></i>
-            </button>
-          </div>
-          <h2 class="text-2xl font-bold" id="profile-name">Player Name</h2>
-          <p class="text-gray-200" id="profile-email">player@example.com</p>
-          
-          <!-- Stats -->
-          <div class="stats-container">
-            <div class="stat-item">
-              <div class="stat-value" id="sensi-count">0</div>
-              <div class="stat-label">Sensi Viewed</div>
-            </div>
+        <div class="qr-container">
+          <div class="qr-code">
+            <img src="https://i.ibb.co/C3ms1LPT/IMG-20260312-092237.jpg" alt="UPI QR Code" style="width:100%; height:100%; object-fit:contain;">
           </div>
         </div>
 
-        <!-- Settings Options -->
-        <div class="settings-option" id="edit-profile">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="bg-red-500 p-3 rounded-lg mr-4">
-                <i class="fas fa-user-edit text-white"></i>
-              </div>
-              <div>
-                <h3 class="font-bold">Edit Profile</h3>
-                <p class="text-gray-400 text-sm">Update your personal information</p>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-gray-400"></i>
-          </div>
+        <div class="payment-instructions">
+          <div class="instructions-title">Payment Instructions:</div>
+          <ol class="instructions-list">
+            <li>Open your UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
+            <li>Scan the QR code above</li>
+            <li>Enter the amount and complete payment</li>
+            <li>Copy the UTR/Reference number after payment</li>
+            <li>Click "I Have Paid" and enter UTR number</li>
+            <li>Admin will verify and add money to your balance</li>
+          </ol>
         </div>
 
-        <!-- Share App Option -->
-        <div class="settings-option" id="share-app">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="bg-green-500 p-3 rounded-lg mr-4">
-                <i class="fas fa-share-alt text-white"></i>
-              </div>
-              <div>
-                <h3 class="font-bold">Share App</h3>
-                <p class="text-gray-400 text-sm">Share with your friends</p>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-gray-400"></i>
-          </div>
+        <div style="margin: 1.5rem 0;">
+          <div style="font-size: 1rem; margin-bottom: 1rem;">Select amount:</div>
+          <input type="number" class="custom-amount" id="customAmount" placeholder="Enter amount (₹)">
         </div>
 
-        <div class="settings-option" id="notification-settings">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="bg-yellow-500 p-3 rounded-lg mr-4">
-                <i class="fas fa-bell text-white"></i>
-              </div>
-              <div>
-                <h3 class="font-bold">Notifications</h3>
-                <p class="text-gray-400 text-sm">Manage your notifications</p>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-gray-400"></i>
-          </div>
+        <div class="upi-id">
+          <span id="upiId">xitmacro@paytm</span>
+          <button class="copy-btn" onclick="copyUPI()">Copy</button>
         </div>
 
-        <div class="settings-option" id="contact-support">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="bg-blue-500 p-3 rounded-lg mr-4">
-                <i class="fas fa-headset text-white"></i>
-              </div>
-              <div>
-                <h3 class="font-bold">Contact Support</h3>
-                <p class="text-gray-400 text-sm">Get help from our support team</p>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-gray-400"></i>
-          </div>
-        </div>
-
-        <div class="settings-option" id="about-app">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="bg-purple-500 p-3 rounded-lg mr-4">
-                <i class="fas fa-info-circle text-white"></i>
-              </div>
-              <div>
-                <h3 class="font-bold">About App</h3>
-                <p class="text-gray-400 text-sm">Version 1.0.0</p>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-gray-400"></i>
-          </div>
-        </div>
-
-        <div class="settings-option mt-8 bg-red-900 border-red-700" id="logout-btn">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="bg-red-700 p-3 rounded-lg mr-4">
-                <i class="fas fa-sign-out-alt text-white"></i>
-              </div>
-              <div>
-                <h3 class="font-bold">Logout</h3>
-                <p class="text-gray-400 text-sm">Sign out from your account</p>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-gray-400"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Share Modal -->
-  <div id="share-modal" class="share-modal hidden">
-    <div class="share-content">
-      <h2 class="text-2xl font-bold mb-4">Share Sensi Viewer</h2>
-      <p class="text-gray-400 mb-4">Share this amazing app with your friends!</p>
-      
-      <div class="share-link">
-        <span id="share-url">http://t.me/MR_HACKER_302</span>
-        <button class="copy-btn" id="copy-url">Copy</button>
-      </div>
-
-      <div class="share-options">
-        <div class="share-option" data-app="whatsapp">
-          <i class="fab fa-whatsapp text-2xl mb-2"></i>
-          <p>WhatsApp</p>
-        </div>
-        <div class="share-option" data-app="telegram">
-          <i class="fab fa-telegram text-2xl mb-2"></i>
-          <p>Telegram</p>
-        </div>
-        <div class="share-option" data-app="instagram">
-          <i class="fab fa-instagram text-2xl mb-2"></i>
-          <p>Instagram</p>
-        </div>
-        <div class="share-option" data-app="facebook">
-          <i class="fab fa-facebook text-2xl mb-2"></i>
-          <p>Facebook</p>
-        </div>
-      </div>
-
-      <button class="save-btn" id="close-share-modal">
-        <i class="fas fa-times mr-2"></i> Close
-      </button>
-    </div>
-  </div>
-
-  <!-- Edit Profile Page -->
-  <div id="edit-profile-page" class="page">
-    <div class="p-4 pb-20">
-      <button class="back-btn" id="back-from-edit">
-        <i class="fas fa-arrow-left"></i> Back to Settings
-      </button>
-      
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-white"><i class="fa-solid fa-user-edit text-red-500"></i> Edit Profile</h1>
-        <p class="text-gray-400">Update your personal information</p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <!-- Profile Picture Section -->
-        <div class="profile-header mb-8">
-          <div class="profile-pic">
-            <i class="fas fa-user text-white" id="edit-profile-icon"></i>
-            <img id="edit-profile-image" src="" alt="Profile" class="hidden">
-            <input type="file" id="photo-upload" accept="image/*" class="hidden">
-            <button class="change-photo-btn" id="edit-change-photo-btn">
-              <i class="fas fa-camera"></i>
-              <i class="fas fa-spinner fa-spin upload-spinner hidden"></i>
-            </button>
-          </div>
-          <h2 class="text-2xl font-bold" id="edit-profile-name-display">Player Name</h2>
-          <p class="text-gray-200" id="edit-profile-email-display">player@example.com</p>
-        </div>
-
-        <!-- Edit Form -->
-        <form id="edit-profile-form">
-          <div class="form-group">
-            <label class="form-label" for="edit-name">Full Name</label>
-            <input type="text" id="edit-name" class="form-input" placeholder="Enter your full name" value="Player Name">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="edit-email">Email Address</label>
-            <input type="email" id="edit-email" class="form-input" placeholder="Enter your email" value="player@example.com">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="edit-username">Username</label>
-            <input type="text" id="edit-username" class="form-input" placeholder="Enter your username" value="pro_player">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="edit-bio">Bio</label>
-            <textarea id="edit-bio" class="form-input" rows="3" placeholder="Tell us about yourself">Free Fire Pro Player. Love to share my sensitivity settings with the community!</textarea>
-          </div>
-
-          <button type="submit" class="save-btn">
-            <i class="fas fa-save mr-2"></i> Save Changes
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Notification Settings Page -->
-  <div id="notification-page" class="page">
-    <div class="p-4 pb-20">
-      <button class="back-btn" id="back-from-notifications">
-        <i class="fas fa-arrow-left"></i> Back to Settings
-      </button>
-      
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-white"><i class="fa-solid fa-bell text-red-500"></i> Notifications</h1>
-        <p class="text-gray-400">Manage your notification preferences</p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <!-- Notification Toggles -->
-        <div class="settings-option">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="font-bold">Push Notifications</h3>
-              <p class="text-gray-400 text-sm">Receive push notifications</p>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="push-notifications" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="settings-option">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="font-bold">Email Notifications</h3>
-              <p class="text-gray-400 text-sm">Receive email updates</p>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="email-notifications" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="settings-option">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="font-bold">New Sensi Alerts</h3>
-              <p class="text-gray-400 text-sm">Get notified about new sensitivities</p>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sensi-alerts" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <button class="save-btn mt-6" id="save-notifications">
-          <i class="fas fa-save mr-2"></i> Save Notification Settings
+        <button class="submit-btn" onclick="openUTRModal()">
+          I Have Paid
         </button>
       </div>
-    </div>
-  </div>
 
-  <!-- Contact Support Page -->
-  <div id="contact-page" class="page">
-    <div class="p-4 pb-20">
-      <button class="back-btn" id="back-from-contact">
-        <i class="fas fa-arrow-left"></i> Back to Settings
-      </button>
-      
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-white"><i class="fa-solid fa-headset text-blue-500"></i> Contact Support</h1>
-        <p class="text-gray-400">Get help from our support team</p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <div class="bg-gray-800 rounded-xl p-6 mb-6">
-          <h3 class="text-lg font-bold mb-4">Need Help?</h3>
-          <p class="text-gray-300 mb-4">Our support team is here to help you with any issues or questions you may have.</p>
-          
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <div class="bg-green-500 p-3 rounded-lg mr-4">
-                <i class="fas fa-envelope text-white"></i>
-              </div>
-              <div>
-                <h4 class="font-bold">Email Support</h4>
-                <p class="text-gray-400">support@sensiviewer.com</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center">
-              <div class="bg-blue-500 p-3 rounded-lg mr-4">
-                <i class="fab fa-whatsapp text-white"></i>
-              </div>
-              <div>
-                <h4 class="font-bold">WhatsApp</h4>
-                <p class="text-gray-400">+91 9876543210</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center">
-              <div class="bg-purple-500 p-3 rounded-lg mr-4">
-                <i class="fas fa-clock text-white"></i>
-              </div>
-              <div>
-                <h4 class="font-bold">Response Time</h4>
-                <p class="text-gray-400">Within 24 hours</p>
-              </div>
-            </div>
-          </div>
+      <div class="payment-card">
+        <div style="font-size: 1.2rem; margin-bottom: 1rem;">Quick Amounts</div>
+        <div class="amount-options">
+          <button class="amount-option" onclick="selectAmount(100)">₹100</button>
+          <button class="amount-option" onclick="selectAmount(200)">₹200</button>
+          <button class="amount-option" onclick="selectAmount(500)">₹500</button>
+          <button class="amount-option" onclick="selectAmount(1000)">₹1000</button>
+          <button class="amount-option" onclick="selectAmount(2000)">₹2000</button>
+          <button class="amount-option" onclick="selectAmount(5000)">₹5000</button>
         </div>
-
-        <!-- Contact Form -->
-        <form id="contact-form">
-          <div class="form-group">
-            <label class="form-label" for="contact-subject">Subject</label>
-            <input type="text" id="contact-subject" class="form-input" placeholder="Enter subject" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="contact-message">Message</label>
-            <textarea id="contact-message" class="form-input" rows="5" placeholder="Describe your issue or question" required></textarea>
-          </div>
-
-          <button type="submit" class="save-btn">
-            <i class="fas fa-paper-plane mr-2"></i> Send Message
-          </button>
-        </form>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <div class="nav-item" id="home-nav">
-      <i class="fas fa-home"></i>
-      <span>Store</span>
-    </div>
-    <div class="nav-item" id="settings-nav">
-      <i class="fas fa-cog"></i>
-      <span>Settings</span>
+  <!-- UTR Modal -->
+  <div id="utrModal" class="utr-modal">
+    <div class="utr-modal-content">
+      <div class="utr-title">Enter UTR Number</div>
+      <div class="utr-note">Please enter the UTR/Reference number from your payment</div>
+      <input type="text" id="utrInput" class="utr-input" placeholder="e.g. UPI123456789" maxlength="50">
+      <div class="utr-buttons">
+        <button class="utr-submit" onclick="submitUTR()">Submit</button>
+        <button class="utr-cancel" onclick="closeUTRModal()">Cancel</button>
+      </div>
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <!-- Admin Panel - Hidden from store -->
+  <div id="adminPanel" class="admin-panel">
+    <div class="admin-header">
+      <div class="admin-title">Admin Panel - Payment Requests</div>
+      <button class="close-btn" onclick="hideAdminPanel()">← Back to Store</button>
+    </div>
+    <div id="paymentRequestsList"></div>
+  </div>
+
+  <!-- App Details Page -->
+  <div class="app-details-page" id="appDetailsPage">
+    <div class="details-container">
+      <button class="back-btn" onclick="hideAppDetailsPage()">← Back to Store</button>
+
+      <div class="app-header">
+        <img id="detailsAppLogo" class="details-app-logo" alt="App Logo" />
+        <div>
+          <h1 id="detailsAppName">Loading...</h1>
+          <div class="version" id="detailsAppVersion"></div>
+        </div>
+      </div>
+
+      <div id="appDescription"></div>
+
+      <div class="screenshots" id="screenshotGallery"></div>
+
+      <!-- Purchase Section - Price will be loaded dynamically -->
+      <div class="purchase-section" id="purchaseSection">
+        <div class="purchase-info">
+          <div class="price-tag" id="appPriceTag">Loading...</div>
+          <div class="balance-check" id="balanceCheck">
+            Your Balance: ₹<span id="currentBalance">0</span>
+          </div>
+          
+          <div id="balanceWarning" class="balance-warning" style="display: none;">
+            ❌ अपर्याप्त बैलेंस! कृपया पहले पैसे add करें।
+          </div>
+
+          <div id="balanceSuccess" class="balance-success" style="display: none;">
+            ✅ आपके पास पर्याप्त बैलेंस है! Confirm Purchase करें।
+          </div>
+
+          <button id="confirmPurchaseBtn" class="confirm-purchase-btn" onclick="showConfirmModal()">
+            Confirm Purchase
+          </button>
+        </div>
+      </div>
+
+      <!-- Download Section (Hidden initially) -->
+      <div class="download-section" id="downloadSection">
+        <div class="download-ready">
+          ✅ Purchase Successful! आप अब डाउनलोड कर सकते हैं।
+        </div>
+        <button id="detailsInstallLink" class="details-download-btn">Download Now</button>
+        <button onclick="openModal()" class="details-download-btn how-btn">
+          How to Download
+        </button>
+      </div>
+
+      <div class="ad-banner">
+        <script type="text/javascript">
+          atOptions = {
+            'key': '50e18924008937421b6c0ece1d47fc03',
+            'format': 'iframe',
+            'height': 250,
+            'width': 300,
+            'params': {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/50e18924008937421b6c0ece1d47fc03/invoke.js"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Purchase Modal -->
+  <div id="confirmModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+      <div class="confirm-title">Confirm Purchase</div>
+      <div class="confirm-message" id="confirmMessage">
+        क्या आप इस ऐप को खरीदना चाहते हैं?
+      </div>
+      <div class="confirm-price" id="confirmPrice">₹0</div>
+      <div class="confirm-message" id="confirmBalanceAfter">
+        इस खरीदारी के बाद आपका बैलेंस: ₹<span id="balanceAfterPurchase">0</span>
+      </div>
+      <div class="confirm-buttons">
+        <button class="confirm-yes" onclick="confirmPurchase()">Yes, Confirm</button>
+        <button class="confirm-no" onclick="closeConfirmModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div class="notifications-container" id="notificationsContainer">
+    <div class="notifications-content">
+      <div class="notifications-header">
+        <div class="notifications-title">Notifications</div>
+        <button class="close-btn" onclick="hideNotifications()">×</button>
+      </div>
+      <div id="notificationsList"></div>
+    </div>
+  </div>
+
+  <!-- Instruction Modal -->
+  <div id="instructionModal" class="modal">
+    <div class="modal-content">
+      <div class="hindi-text">
+        सबसे पहले डाउनलोड पर क्लिक करें, फिर एक<br>
+        विज्ञापन आएगा। उसके बाद<br>
+        बैक करके दोबारा डाउनलोड पर क्लिक करें, तब ऐप<br>
+        डाउनलोड होना शुरू होगा।
+      </div>
+
+      <div class="english-text">
+        First, click on the download button. An ad will appear.<br>
+        After that, go back and click on download again—the app will start downloading.
+      </div>
+
+      <button class="modal-close-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
   <script>
+    // Disable zoom
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener('wheel', function(e) {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDS472wskQQiDIIpuXo5T1ZnxJTGCVyyoQ",
       authDomain: "mr-hacker-d6d7f.firebaseapp.com",
@@ -1087,529 +1383,713 @@
       appId: "1:414827898605:web:c836aa47a775cd2e87cee4",
       measurementId: "G-LG3TG3FNW0"
     };
-
-    if (firebaseConfig.projectId !== "YOUR_PROJECT_ID") {
+    
+    // Initialize Firebase
+    try {
       firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const auth = firebase.auth();
-      const storage = firebase.storage();
-
-      // User data
-      let userData = {
-        name: "Player Name",
-        email: "player@example.com",
-        sensiViewed: 0
-      };
-
-      let currentUser = null;
-      let sensiData = [];
-
-      // Check if user is logged in
-      auth.onAuthStateChanged((user) => {
-        if (user) {
-          currentUser = user;
-          userData.name = user.displayName || "Player Name";
-          userData.email = user.email;
-          showPage('home-page');
-          loadUserData();
-          loadSensiData();
-          // Show navigation after login
-          document.querySelector('.bottom-nav').style.display = 'flex';
-        } else {
-          showPage('auth-page');
-          // Hide navigation when logged out
-          document.querySelector('.bottom-nav').style.display = 'none';
-        }
-      });
-
-      // Load sensi data from Firebase (Admin added sensitivities)
-      function loadSensiData() {
-        db.collection('sensitivities').onSnapshot(snapshot => {
-          const sensiList = document.getElementById('sensi-list');
-          const loadingState = document.getElementById('loading-state');
-          const emptyState = document.getElementById('empty-state');
-          
-          sensiData = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            sensiData.push({ 
-              id: doc.id, 
-              ...data,
-              // Ensure all sensitivity fields have proper values
-              general: parseInt(data.general) || 0,
-              redDot: parseInt(data.redDot) || 0,
-              scope2x: parseInt(data.scope2x) || 0,
-              scope4x: parseInt(data.scope4x) || 0,
-              sniperScope: parseInt(data.sniperScope) || 0,
-              freeLook: parseInt(data.freeLook) || 0
-            });
-          });
-          
-          console.log('Loaded sensi data:', sensiData);
-          
-          if (sensiData.length > 0) {
-            renderSensi(sensiData);
-            loadingState.classList.add('hidden');
-            emptyState.classList.add('hidden');
-          } else {
-            loadingState.classList.add('hidden');
-            emptyState.classList.remove('hidden');
-          }
-        }, error => {
-          console.error('Error loading sensi data:', error);
-          document.getElementById('loading-state').classList.add('hidden');
-          document.getElementById('empty-state').classList.remove('hidden');
-        });
-      }
-
-      function renderSensi(data) {
-        const sensiList = document.getElementById('sensi-list');
-        sensiList.innerHTML = '';
-        
-        data.forEach(s => {
-          console.log('Rendering sensi:', s);
-          sensiList.innerHTML += `
-            <div class="card p-5 rounded-xl">
-              <div class="flex items-center space-x-4 mb-4">
-                <img src="${s.logoUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80'}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-600">
-                <div>
-                  <h3 class="text-lg font-bold">${s.name || 'Unknown Player'}</h3>
-                  <p class="text-sm text-gray-400"><i class="fa-solid fa-mobile-screen-button mr-1"></i>${s.deviceName || 'Unknown Device'} | DPI: ${s.dpi || 'Unknown'}</p>
-                </div>
-              </div>
-              ${renderBar("General", s.general)}
-              ${renderBar("Red Dot", s.redDot)}
-              ${renderBar("2x Scope", s.scope2x)}
-              ${renderBar("4x Scope", s.scope4x)}
-              ${renderBar("Sniper Scope", s.sniperScope)}
-              ${renderBar("Free Look", s.freeLook)}
-            </div>`;
-        });
-      }
-
-      function renderBar(label, val) {
-        // 0-200 range show karo - 200 ko 100% consider karo
-        const value = Math.max(0, Math.min(200, parseInt(val) || 0));
-        const percent = (value / 200) * 100;
-        
-        return `
-          <div class="mb-2">
-            <label class="flex justify-between text-sm text-gray-300">${label}<span class="text-red-400">${value}</span></label>
-            <div class="w-full h-2 rounded-full bg-gray-700 overflow-hidden">
-              <div class="h-2 bg-red-500 rounded-full transition-all duration-300" style="width:${percent}%"></div>
-            </div>
-          </div>`;
-      }
-
-      // Load user data from Firebase
-      function loadUserData() {
-        if (!currentUser) return;
-        
-        db.collection('users').doc(currentUser.uid).onSnapshot((doc) => {
-          if (doc.exists) {
-            const data = doc.data();
-            userData.sensiViewed = data.sensiViewed || 0;
-            userData.profileImage = data.profileImage || '';
-            updateProfileDisplay();
-          }
-        });
-      }
-
-      // Update profile display
-      function updateProfileDisplay() {
-        document.getElementById('profile-name').textContent = userData.name;
-        document.getElementById('profile-email').textContent = userData.email;
-        document.getElementById('sensi-count').textContent = userData.sensiViewed;
-        
-        // Update profile image
-        if (userData.profileImage) {
-          document.getElementById('profile-icon').classList.add('hidden');
-          document.getElementById('profile-image').classList.remove('hidden');
-          document.getElementById('profile-image').src = userData.profileImage;
-          
-          document.getElementById('edit-profile-icon').classList.add('hidden');
-          document.getElementById('edit-profile-image').classList.remove('hidden');
-          document.getElementById('edit-profile-image').src = userData.profileImage;
-        } else {
-          document.getElementById('profile-icon').classList.remove('hidden');
-          document.getElementById('profile-image').classList.add('hidden');
-          
-          document.getElementById('edit-profile-icon').classList.remove('hidden');
-          document.getElementById('edit-profile-image').classList.add('hidden');
-        }
-        
-        // Update edit profile form
-        document.getElementById('edit-name').value = userData.name;
-        document.getElementById('edit-email').value = userData.email;
-        document.getElementById('edit-profile-name-display').textContent = userData.name;
-        document.getElementById('edit-profile-email-display').textContent = userData.email;
-      }
-
-      // Page Navigation
-      function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(page => {
-          page.classList.remove('active');
-        });
-        
-        document.getElementById(pageId).classList.add('active');
-        
-        if (['home-page', 'settings-page'].includes(pageId)) {
-          setActiveNav(pageId.replace('-page', '-nav'));
-        }
-      }
-
-      function setActiveNav(activeId) {
-        document.querySelectorAll('.nav-item').forEach(item => {
-          item.classList.remove('active');
-        });
-        document.getElementById(activeId).classList.add('active');
-      }
-
-      // Auth functionality
-      document.getElementById('login-tab').addEventListener('click', () => {
-        document.getElementById('login-tab').classList.add('active');
-        document.getElementById('register-tab').classList.remove('active');
-        document.getElementById('login-form').classList.add('active');
-        document.getElementById('register-form').classList.remove('active');
-      });
-
-      document.getElementById('register-tab').addEventListener('click', () => {
-        document.getElementById('register-tab').classList.add('active');
-        document.getElementById('login-tab').classList.remove('active');
-        document.getElementById('register-form').classList.add('active');
-        document.getElementById('login-form').classList.remove('active');
-      });
-
-      document.getElementById('switch-to-register').addEventListener('click', () => {
-        document.getElementById('register-tab').click();
-      });
-
-      document.getElementById('switch-to-login').addEventListener('click', () => {
-        document.getElementById('login-tab').click();
-      });
-
-      // Login form
-      document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        
-        try {
-          await auth.signInWithEmailAndPassword(email, password);
-        } catch (error) {
-          alert('Login failed: ' + error.message);
-        }
-      });
-
-      // Register form
-      document.getElementById('register-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('register-name').value;
-        const email = document.getElementById('register-email').value;
-        const password = document.getElementById('register-password').value;
-        
-        try {
-          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-          await userCredential.user.updateProfile({
-            displayName: name
-          });
-          
-          await db.collection('users').doc(userCredential.user.uid).set({
-            name: name,
-            email: email,
-            sensiViewed: 0,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        } catch (error) {
-          alert('Registration failed: ' + error.message);
-        }
-      });
-
-      // Navigation
-      document.getElementById('home-nav').addEventListener('click', () => {
-        showPage('home-page');
-      });
-
-      document.getElementById('settings-nav').addEventListener('click', () => {
-        showPage('settings-page');
-      });
-
-      // Settings navigation
-      document.getElementById('edit-profile').addEventListener('click', () => {
-        showPage('edit-profile-page');
-      });
-
-      document.getElementById('share-app').addEventListener('click', () => {
-        document.getElementById('share-modal').classList.remove('hidden');
-      });
-
-      document.getElementById('notification-settings').addEventListener('click', () => {
-        showPage('notification-page');
-      });
-
-      document.getElementById('contact-support').addEventListener('click', () => {
-        showPage('contact-page');
-      });
-
-      // Back buttons
-      document.getElementById('back-from-edit').addEventListener('click', () => {
-        showPage('settings-page');
-      });
-
-      document.getElementById('back-from-notifications').addEventListener('click', () => {
-        showPage('settings-page');
-      });
-
-      document.getElementById('back-from-contact').addEventListener('click', () => {
-        showPage('settings-page');
-      });
-
-      // Share functionality
-      document.getElementById('close-share-modal').addEventListener('click', () => {
-        document.getElementById('share-modal').classList.add('hidden');
-      });
-
-      document.getElementById('copy-url').addEventListener('click', () => {
-        const url = document.getElementById('share-url').textContent;
-        navigator.clipboard.writeText(url).then(() => {
-          alert('Link copied to clipboard!');
-        });
-      });
-
-      // Share options
-      document.querySelectorAll('.share-option').forEach(option => {
-        option.addEventListener('click', () => {
-          const app = option.getAttribute('data-app');
-          const url = 'http://t.me/MR_HACKER_302';
-          const text = 'Check out this amazing Sensi Viewer app for Free Fire! 🎮';
-          
-          let shareUrl = '';
-          
-          switch(app) {
-            case 'whatsapp':
-              shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
-              break;
-            case 'telegram':
-              shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-              break;
-            case 'instagram':
-              // Instagram doesn't have direct share, so copy to clipboard
-              navigator.clipboard.writeText(url).then(() => {
-                alert('Link copied to clipboard! You can now paste it on Instagram.');
-              });
-              return;
-            case 'facebook':
-              shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-              break;
-          }
-          
-          if (shareUrl) {
-            window.open(shareUrl, '_blank');
-          }
-        });
-      });
-
-      // Photo upload functionality - FIXED VERSION
-      document.getElementById('edit-change-photo-btn').addEventListener('click', () => {
-        document.getElementById('photo-upload').click();
-      });
-
-      document.getElementById('change-photo-btn').addEventListener('click', () => {
-        document.getElementById('photo-upload').click();
-      });
-
-      document.getElementById('photo-upload').addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // File validation
-        if (!file.type.startsWith('image/')) {
-          alert('Please select an image file (JPEG, PNG, etc.)');
-          return;
-        }
-
-        // File size check (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          alert('File size should be less than 5MB');
-          return;
-        }
-
-        try {
-          // Show loading spinner
-          const spinner = document.querySelector('.upload-spinner');
-          const cameraIcon = document.querySelector('.fa-camera');
-          spinner.classList.remove('hidden');
-          cameraIcon.style.display = 'none';
-
-          // Create unique filename
-          const fileExtension = file.name.split('.').pop();
-          const fileName = `profile_${Date.now()}.${fileExtension}`;
-
-          // Upload image to Firebase Storage
-          const storageRef = storage.ref();
-          const imageRef = storageRef.child(`profile_images/${currentUser.uid}/${fileName}`);
-          
-          console.log('Starting upload...');
-          const snapshot = await imageRef.put(file);
-          console.log('Upload completed');
-
-          // Get download URL
-          const downloadURL = await snapshot.ref.getDownloadURL();
-          console.log('Download URL:', downloadURL);
-
-          // Update user profile with image URL
-          await db.collection('users').doc(currentUser.uid).update({
-            profileImage: downloadURL
-          });
-
-          // Update local user data
-          userData.profileImage = downloadURL;
-          updateProfileDisplay();
-
-          // Hide spinner and show camera icon
-          spinner.classList.add('hidden');
-          cameraIcon.style.display = 'block';
-
-          alert('Profile picture updated successfully!');
-        } catch (error) {
-          console.error('Upload error:', error);
-          // Hide spinner and show camera icon
-          document.querySelector('.upload-spinner').classList.add('hidden');
-          document.querySelector('.fa-camera').style.display = 'block';
-          
-          alert('Error uploading image: ' + error.message);
-        }
-      });
-
-      // Edit profile form
-      document.getElementById('edit-profile-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const newName = document.getElementById('edit-name').value;
-        const newEmail = document.getElementById('edit-email').value;
-        
-        try {
-          await currentUser.updateProfile({
-            displayName: newName
-          });
-          
-          await currentUser.updateEmail(newEmail);
-          
-          await db.collection('users').doc(currentUser.uid).update({
-            name: newName,
-            email: newEmail
-          });
-          
-          userData.name = newName;
-          userData.email = newEmail;
-          updateProfileDisplay();
-          
-          alert('Profile updated successfully!');
-          showPage('settings-page');
-        } catch (error) {
-          alert('Error updating profile: ' + error.message);
-        }
-      });
-
-      // Save notification settings
-      document.getElementById('save-notifications').addEventListener('click', function() {
-        alert('Notification settings saved successfully!');
-        showPage('settings-page');
-      });
-
-      // Contact form
-      document.getElementById('contact-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const subject = document.getElementById('contact-subject').value;
-        const message = document.getElementById('contact-message').value;
-        
-        try {
-          await db.collection('support_requests').add({
-            userId: currentUser.uid,
-            userName: userData.name,
-            userEmail: userData.email,
-            subject: subject,
-            message: message,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            status: 'open'
-          });
-          
-          alert('Message sent to support team! We will get back to you within 24 hours.');
-          document.getElementById('contact-form').reset();
-          showPage('settings-page');
-        } catch (error) {
-          alert('Error sending message: ' + error.message);
-        }
-      });
-
-      // Menu functionality
-      document.getElementById('menu-btn').addEventListener('click', () => {
-        document.getElementById('menu-dropdown').classList.toggle('hidden');
-      });
-
-      document.getElementById('request-btn').addEventListener('click', () => {
-        document.getElementById('menu-dropdown').classList.add('hidden');
-        document.getElementById('request-modal').classList.remove('hidden');
-      });
-
-      document.getElementById('close-modal').addEventListener('click', () => {
-        document.getElementById('request-modal').classList.add('hidden');
-      });
-
-      document.getElementById('request-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('req-name').value;
-        const device = document.getElementById('req-device').value;
-        const message = document.getElementById('req-message').value;
-        
-        try {
-          await db.collection("sensi_requests").add({ 
-            name, 
-            device, 
-            message, 
-            userId: currentUser.uid,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-          });
-          alert("✅ Request sent successfully!");
-          document.getElementById('request-form').reset();
-          document.getElementById('request-modal').classList.add('hidden');
-        } catch (err) {
-          alert("❌ Failed to send request.");
-        }
-      });
-
-      // Search functionality
-      document.getElementById('search-input').addEventListener('input', () => {
-        const q = document.getElementById('search-input').value.toLowerCase();
-        const filtered = sensiData.filter(s => 
-          (s.name && s.name.toLowerCase().includes(q)) || 
-          (s.deviceName && s.deviceName.toLowerCase().includes(q))
-        );
-        renderSensi(filtered);
-      });
-
-      // Logout functionality
-      document.getElementById('logout-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to logout?')) {
-          auth.signOut();
-        }
-      });
-
-      document.getElementById('logout-btn-menu').addEventListener('click', () => {
-        if (confirm('Are you sure you want to logout?')) {
-          auth.signOut();
-        }
-      });
-
-      // Initialize
-      updateProfileDisplay();
-      // Hide navigation initially
-      document.querySelector('.bottom-nav').style.display = 'none';
-
-    } else {
-      alert("⚠️ Please add your Firebase config first.");
+      console.log("Firebase initialized successfully");
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
     }
+
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    
+    // Global Variables
+    const appGrid = document.getElementById("app-grid");
+    const searchInput = document.getElementById("searchInput");
+    const categorySelect = document.getElementById("categorySelect");
+    let allApps = [];
+    let userBalance = 0;
+    let selectedAmount = 0;
+    let currentAppDetails = null;
+    let currentUser = null;
+
+    // Auth State Observer
+    auth.onAuthStateChanged(async (user) => {
+      console.log("Auth state changed:", user ? user.email : "No user");
+      if (user) {
+        currentUser = user;
+        document.getElementById('registerPage').style.display = 'none';
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainHeader').style.display = 'flex';
+        document.getElementById('mainPage').style.display = 'block';
+        document.getElementById('userEmailDisplay').textContent = user.email;
+        
+        // Check if user is admin for URL access
+        if (window.location.hash === '#admin' && user.email === 'xitmacro@gmail.com') {
+          showAdminPanel();
+        }
+        
+        // Load user balance from Firestore
+        await loadUserBalance(user.uid);
+      } else {
+        currentUser = null;
+        document.getElementById('registerPage').style.display = 'flex';
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainHeader').style.display = 'none';
+        document.getElementById('mainPage').style.display = 'none';
+        document.getElementById('paymentPage').style.display = 'none';
+        document.getElementById('appDetailsPage').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'none';
+      }
+    });
+
+    // Load user balance from Firestore
+    async function loadUserBalance(userId) {
+      try {
+        const userDoc = await db.collection("users").doc(userId).get();
+        if (userDoc.exists) {
+          userBalance = userDoc.data().balance || 0;
+        } else {
+          // Create user document if not exists
+          await db.collection("users").doc(userId).set({
+            email: currentUser.email,
+            username: currentUser.displayName || currentUser.email.split('@')[0],
+            balance: 0,
+            registrationDate: new Date().toISOString()
+          });
+          userBalance = 0;
+        }
+        updateBalanceDisplay();
+        if (currentAppDetails) {
+          updatePurchaseSection();
+        }
+      } catch (error) {
+        console.error("Error loading user balance:", error);
+      }
+    }
+
+    // Show/Hide Pages
+    function showRegisterPage() {
+      document.getElementById('registerPage').style.display = 'flex';
+      document.getElementById('loginPage').style.display = 'none';
+    }
+
+    function showLoginPage() {
+      document.getElementById('registerPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'flex';
+    }
+
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('registerUsername').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const messageEl = document.getElementById('registerMessage');
+
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Update profile with username
+        await user.updateProfile({
+          displayName: username
+        });
+
+        // Create user document in Firestore
+        await db.collection("users").doc(user.uid).set({
+          email: email,
+          username: username,
+          balance: 0,
+          registrationDate: new Date().toISOString()
+        });
+
+        messageEl.textContent = 'Registration successful! Logging in...';
+        messageEl.className = 'auth-message success';
+        
+        // Auto login happens via onAuthStateChanged
+      } catch (error) {
+        messageEl.textContent = error.message;
+        messageEl.className = 'auth-message error';
+      }
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const messageEl = document.getElementById('loginMessage');
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        messageEl.textContent = 'Login successful!';
+        messageEl.className = 'auth-message success';
+      } catch (error) {
+        messageEl.textContent = error.message;
+        messageEl.className = 'auth-message error';
+      }
+    });
+
+    // Logout
+    function logout() {
+      auth.signOut();
+      toggleMenu();
+      window.location.hash = '';
+    }
+
+    // Update balance display
+    function updateBalanceDisplay() {
+      document.getElementById('balanceAmount').textContent = userBalance;
+      document.getElementById('currentBalance').textContent = userBalance;
+    }
+
+    // Update purchase section based on balance and current app price
+    function updatePurchaseSection() {
+      if (!currentAppDetails) return;
+      
+      const balanceWarning = document.getElementById('balanceWarning');
+      const balanceSuccess = document.getElementById('balanceSuccess');
+      const confirmPurchaseBtn = document.getElementById('confirmPurchaseBtn');
+      const priceTag = document.getElementById('appPriceTag');
+      const appPrice = currentAppDetails.price || 0;
+      
+      // Update price display
+      priceTag.textContent = `₹${appPrice}`;
+      confirmPurchaseBtn.textContent = `Confirm Purchase - ₹${appPrice}`;
+      
+      if (userBalance >= appPrice) {
+        balanceWarning.style.display = 'none';
+        balanceSuccess.style.display = 'block';
+        confirmPurchaseBtn.disabled = false;
+      } else {
+        balanceWarning.style.display = 'block';
+        balanceSuccess.style.display = 'none';
+        confirmPurchaseBtn.disabled = true;
+      }
+    }
+
+    // Page Navigation Functions
+    function showPaymentPage() {
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('paymentPage').style.display = 'block';
+      document.getElementById('appDetailsPage').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'none';
+    }
+
+    function hidePaymentPage() {
+      document.getElementById('paymentPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+      if (currentAppDetails) {
+        updatePurchaseSection();
+      }
+    }
+
+    function showAppDetailsPage(appId) {
+      loadAppDetails(appId);
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('paymentPage').style.display = 'none';
+      document.getElementById('appDetailsPage').style.display = 'block';
+      document.getElementById('adminPanel').style.display = 'none';
+    }
+
+    function hideAppDetailsPage() {
+      document.getElementById('appDetailsPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+    }
+
+    // Admin Panel Functions
+    function showAdminPanel() {
+      if (currentUser && currentUser.email === 'xitmacro@gmail.com') {
+        document.getElementById('mainPage').style.display = 'none';
+        document.getElementById('paymentPage').style.display = 'none';
+        document.getElementById('appDetailsPage').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        loadPaymentRequests();
+        window.location.hash = 'admin';
+      } else {
+        alert('Unauthorized access');
+        window.location.hash = '';
+      }
+    }
+
+    function hideAdminPanel() {
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+      window.location.hash = '';
+    }
+
+    function loadPaymentRequests() {
+      const requestsList = document.getElementById('paymentRequestsList');
+      
+      db.collection("paymentRequests")
+        .orderBy("timestamp", "desc")
+        .onSnapshot(snapshot => {
+          requestsList.innerHTML = '';
+          
+          if (snapshot.empty) {
+            requestsList.innerHTML = '<div style="text-align: center; padding: 20px;">No payment requests found</div>';
+            return;
+          }
+          
+          snapshot.forEach(doc => {
+            const request = { id: doc.id, ...doc.data() };
+            const requestCard = document.createElement('div');
+            requestCard.className = `request-card ${request.status === 'approved' ? 'approved' : ''}`;
+            
+            let timeString = 'Unknown';
+            if (request.timestamp) {
+              try {
+                timeString = new Date(request.timestamp.toDate()).toLocaleString();
+              } catch (e) {
+                timeString = 'Invalid date';
+              }
+            }
+            
+            requestCard.innerHTML = `
+              <div class="request-amount">₹${request.amount}</div>
+              <div class="request-detail">UTR: ${request.utr}</div>
+              <div class="request-detail">User: ${request.userEmail || 'Unknown'}</div>
+              <div class="request-detail">Time: ${timeString}</div>
+              <div class="request-detail">Status: ${request.status || 'pending'}</div>
+              ${request.status === 'pending' ? `
+                <div style="margin-top: 1rem;">
+                  <button class="approve-btn" onclick="approvePayment('${doc.id}', ${request.amount}, '${request.userId || ''}')">Approve</button>
+                  <button class="reject-btn" onclick="rejectPayment('${doc.id}')">Reject</button>
+                </div>
+              ` : ''}
+            `;
+            
+            requestsList.appendChild(requestCard);
+          });
+        });
+    }
+
+    async function approvePayment(requestId, amount, userId) {
+      if (!confirm(`Approve payment of ₹${amount}?`)) return;
+      
+      try {
+        // Update payment request status
+        await db.collection("paymentRequests").doc(requestId).update({
+          status: 'approved',
+          approvedAt: new Date().toISOString()
+        });
+
+        // Add balance to user if userId exists
+        if (userId) {
+          const userRef = db.collection("users").doc(userId);
+          await db.runTransaction(async (transaction) => {
+            const userDoc = await transaction.get(userRef);
+            if (userDoc.exists) {
+              const currentBalance = userDoc.data().balance || 0;
+              transaction.update(userRef, { 
+                balance: currentBalance + amount 
+              });
+            }
+          });
+          
+          // If this is the current user, update local balance
+          if (currentUser && currentUser.uid === userId) {
+            userBalance += amount;
+            updateBalanceDisplay();
+            if (currentAppDetails) {
+              updatePurchaseSection();
+            }
+          }
+        }
+
+        alert('Payment approved! Balance updated.');
+      } catch (error) {
+        console.error('Error approving payment:', error);
+        alert('Error approving payment: ' + error.message);
+      }
+    }
+
+    function rejectPayment(requestId) {
+      if (!confirm('Reject this payment request?')) return;
+      
+      db.collection("paymentRequests").doc(requestId).update({
+        status: 'rejected',
+        rejectedAt: new Date().toISOString()
+      }).then(() => {
+        alert('Payment rejected.');
+      }).catch(error => {
+        alert('Error rejecting payment: ' + error.message);
+      });
+    }
+
+    // Payment Functions
+    function selectAmount(amount) {
+      selectedAmount = amount;
+      document.getElementById('customAmount').value = amount;
+      
+      const buttons = document.querySelectorAll('.amount-option');
+      buttons.forEach(button => {
+        button.classList.remove('selected');
+      });
+      
+      event.target.classList.add('selected');
+    }
+
+    function copyUPI() {
+      const upiId = document.getElementById('upiId').textContent;
+      navigator.clipboard.writeText(upiId).then(() => {
+        alert('UPI ID copied to clipboard: ' + upiId);
+      });
+    }
+
+    function openUTRModal() {
+      const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+      
+      if (!amount || amount <= 0) {
+        alert('कृपया पहले राशि चुनें या दर्ज करें');
+        return;
+      }
+      
+      document.getElementById('utrModal').style.display = 'block';
+    }
+
+    function closeUTRModal() {
+      document.getElementById('utrModal').style.display = 'none';
+      document.getElementById('utrInput').value = '';
+    }
+
+    function submitUTR() {
+      const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+      const utr = document.getElementById('utrInput').value.trim();
+      
+      if (!amount || amount <= 0) {
+        alert('कृपया वैध राशि दर्ज करें');
+        return;
+      }
+      
+      if (!utr) {
+        alert('कृपया UTR नंबर दर्ज करें');
+        return;
+      }
+      
+      // Save payment request to Firebase with user info
+      db.collection("paymentRequests").add({
+        amount: amount,
+        utr: utr,
+        userId: currentUser?.uid,
+        userEmail: currentUser?.email,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'pending'
+      }).then(() => {
+        alert('आपका भुगतान अनुरोध भेज दिया गया है। एडमिन द्वारा सत्यापन के बाद बैलेंस जोड़ दिया जाएगा।');
+        closeUTRModal();
+        hidePaymentPage();
+        
+        // Reset form
+        selectedAmount = 0;
+        document.getElementById('customAmount').value = '';
+        document.getElementById('utrInput').value = '';
+        const buttons = document.querySelectorAll('.amount-option');
+        buttons.forEach(button => {
+          button.classList.remove('selected');
+        });
+      }).catch(error => {
+        alert('कुछ गलत हो गया। कृपया पुन: प्रयास करें।');
+        console.error(error);
+      });
+    }
+
+    // Purchase Functions
+    function showConfirmModal() {
+      if (!currentAppDetails) return;
+      
+      const appPrice = currentAppDetails.price || 0;
+      
+      if (userBalance < appPrice) {
+        alert(`❌ अपर्याप्त बैलेंस! कृपया पहले पैसे add करें।`);
+        return;
+      }
+      
+      document.getElementById('confirmMessage').textContent = `क्या आप ${currentAppDetails.name} को ₹${appPrice} में खरीदना चाहते हैं?`;
+      document.getElementById('confirmPrice').textContent = `₹${appPrice}`;
+      document.getElementById('balanceAfterPurchase').textContent = userBalance - appPrice;
+      document.getElementById('confirmModal').style.display = 'block';
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+    }
+
+    async function confirmPurchase() {
+      if (!currentUser || !currentAppDetails) return;
+      
+      const appPrice = currentAppDetails.price || 0;
+      
+      userBalance -= appPrice;
+      
+      // Update balance in Firestore
+      const userRef = db.collection("users").doc(currentUser.uid);
+      await userRef.update({
+        balance: userBalance
+      });
+      
+      updateBalanceDisplay();
+      savePurchaseToFirebase();
+      
+      document.getElementById('purchaseSection').style.display = 'none';
+      document.getElementById('downloadSection').style.display = 'block';
+      
+      closeConfirmModal();
+      
+      alert(`✅ Purchase Successful! आपका नया बैलेंस: ₹${userBalance}`);
+    }
+
+    function savePurchaseToFirebase() {
+      if (!currentAppDetails || !currentUser) return;
+      
+      const purchaseData = {
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        appId: currentAppDetails.id,
+        appName: currentAppDetails.name,
+        price: currentAppDetails.price || 0,
+        timestamp: new Date().toISOString()
+      };
+      
+      db.collection("purchases").add(purchaseData)
+        .then((docRef) => {
+          console.log("Purchase saved with ID: ", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Error saving purchase: ", error);
+        });
+    }
+
+    // App Details Functions
+    function loadAppDetails(appId) {
+      db.collection("apps").doc(appId).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          currentAppDetails = { id: doc.id, ...data };
+          
+          document.getElementById('detailsAppName').innerText = data.name || "No name";
+          document.getElementById('detailsAppLogo').src = data.logoUrl || '';
+          document.getElementById('detailsAppVersion').innerText = "Version: " + (data.version || "N/A");
+          document.getElementById('appDescription').innerHTML = data.description || "<i>No description provided.</i>";
+
+          const gallery = document.getElementById("screenshotGallery");
+          gallery.innerHTML = '';
+          const screenshots = data.screenshots || [];
+          screenshots.forEach(url => {
+            const img = document.createElement("img");
+            img.src = url;
+            gallery.appendChild(img);
+          });
+
+          // FIXED: Download button now directly opens the download link from Firestore
+          document.getElementById("detailsInstallLink").onclick = function(e) {
+            e.preventDefault();
+            const downloadLink = data.downloadLink;
+            if (!downloadLink || downloadLink === "#") {
+              alert("Download link not available for this app.");
+              return;
+            }
+            // Open the download link directly in a new tab
+            window.open(downloadLink, "_blank");
+          };
+
+          updatePurchaseSection();
+        } else {
+          document.getElementById('detailsAppName').innerText = "App not found.";
+        }
+      }).catch(error => {
+        document.getElementById('detailsAppName').innerText = "Error loading app.";
+        console.error("Error fetching app:", error);
+      });
+    }
+
+    // Notifications Functions
+    function showNotifications() {
+      document.getElementById('notificationsContainer').style.display = 'flex';
+      loadNotifications();
+      toggleMenu();
+    }
+
+    function hideNotifications() {
+      document.getElementById('notificationsContainer').style.display = 'none';
+    }
+
+    function loadNotifications() {
+      const notificationsList = document.getElementById('notificationsList');
+      notificationsList.innerHTML = '';
+      
+      // Get notifications from Firestore
+      db.collection("notifications").orderBy("timestamp", "desc").limit(5).get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            notificationsList.innerHTML = '<div class="notification-item">No notifications</div>';
+            return;
+          }
+          
+          snapshot.forEach(doc => {
+            const notif = doc.data();
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item';
+            
+            let timeString = 'Unknown';
+            if (notif.timestamp) {
+              try {
+                timeString = new Date(notif.timestamp.toDate()).toLocaleString();
+              } catch (e) {
+                timeString = 'Invalid date';
+              }
+            }
+            
+            notificationItem.innerHTML = `
+              <div class="notification-title">${notif.title}</div>
+              <div>${notif.message}</div>
+              <div class="notification-time">${timeString}</div>
+            `;
+            notificationsList.appendChild(notificationItem);
+          });
+        })
+        .catch(error => {
+          console.error("Error loading notifications:", error);
+          notificationsList.innerHTML = '<div class="notification-item">Error loading notifications</div>';
+        });
+    }
+
+    // App Store Functions
+    db.collection("apps").onSnapshot(snapshot => {
+      allApps = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      displayApps(allApps);
+    }, error => {
+      console.error("Error loading apps:", error);
+    });
+
+    db.collection("categories").onSnapshot(snapshot => {
+      categorySelect.innerHTML = '<option value="All">All</option>';
+      snapshot.forEach(doc => {
+        const category = doc.data().name;
+        categorySelect.innerHTML += `<option value="${category}">${category}</option>`;
+      });
+    }, error => {
+      console.error("Error loading categories:", error);
+    });
+
+    function displayApps(apps) {
+      appGrid.innerHTML = "";
+      apps.forEach(app => {
+        const appCard = document.createElement('div');
+        appCard.className = 'app-card';
+        
+        appCard.innerHTML = `
+          <img src="${app.logoUrl}" class="app-logo" alt="${app.name}" />
+          <h3>${app.name}</h3>
+          <p>₹${app.price || 0}</p>
+          <div class="view-btn">View</div>
+        `;
+        
+        appCard.addEventListener('click', function() {
+          showAppDetailsPage(app.id);
+        });
+        
+        appGrid.appendChild(appCard);
+      });
+    }
+
+    function filterByCategory() {
+      const category = categorySelect.value;
+      const keyword = searchInput.value.toLowerCase();
+      const filtered = allApps.filter(app => {
+        const matchCategory = category === "All" || app.category === category;
+        const matchKeyword = app.name.toLowerCase().includes(keyword);
+        return matchCategory && matchKeyword;
+      });
+      displayApps(filtered);
+    }
+
+    // Utility Functions
+    function toggleMenu() {
+      const dropdownMenu = document.getElementById("dropdownMenu");
+      dropdownMenu.style.display = dropdownMenu.style.display === "flex" ? "none" : "flex";
+    }
+
+    function openModal() {
+      document.getElementById("instructionModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("instructionModal").style.display = "none";
+    }
+
+    // Event Listeners
+    searchInput.addEventListener("input", () => filterByCategory());
+
+    document.getElementById('customAmount').addEventListener('input', function() {
+      const amount = parseInt(this.value) || 0;
+      selectedAmount = amount;
+      
+      const buttons = document.querySelectorAll('.amount-option');
+      buttons.forEach(button => {
+        button.classList.remove('selected');
+      });
+    });
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("instructionModal");
+      const confirmModal = document.getElementById("confirmModal");
+      const utrModal = document.getElementById("utrModal");
+      const dropdown = document.getElementById("dropdownMenu");
+      
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+      if (event.target === confirmModal) {
+        confirmModal.style.display = "none";
+      }
+      if (event.target === utrModal) {
+        utrModal.style.display = "none";
+      }
+      if (!event.target.closest('.icons') && !event.target.closest('.dropdown-menu')) {
+        dropdown.style.display = 'none';
+      }
+    }
+
+    // Check URL hash for admin access
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#admin' && currentUser) {
+        if (currentUser.email === 'xitmacro@gmail.com') {
+          showAdminPanel();
+        } else {
+          window.location.hash = '';
+        }
+      }
+    });
+
+    // Initialize
+    window.onload = function() {
+      console.log("Page loaded");
+      // Check URL hash for admin panel
+      if (window.location.hash === '#admin') {
+        // Will be handled by auth state observer
+      }
+    };
+
+    // Particles Background
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 50, density: { enable: true, value_area: 800 } },
+        color: { value: "#00ff00" },
+        shape: { type: "circle" },
+        opacity: { value: 0.3 },
+        size: { value: 3 },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#00ff00",
+          opacity: 0.2,
+          width: 1
+        },
+        move: { enable: true, speed: 1 }
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "repulse" }
+        }
+      },
+      retina_detect: true
+    });
   </script>
 </body>
 </html>
