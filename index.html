@@ -1052,25 +1052,6 @@
     .modal-close-btn:hover {
       opacity: 0.9;
     }
-
-    /* User Info */
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: #4f46e5;
-      font-weight: 600;
-    }
-
-    .logout-btn {
-      background: #dc2626;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.8rem;
-    }
   </style>
 </head>
 <body ongesturestart="event.preventDefault()" ongesturechange="event.preventDefault()" ongestureend="event.preventDefault()">
@@ -1147,7 +1128,6 @@
     <a href="https://t.me/xit_macro" target="_blank">Telegram</a>
     <a href="https://yt.openinapp.co/65rzh" target="_blank">YouTube</a>
     <a href="https://instagram.com/xit_macro" target="_blank">Instagram</a>
-    <!-- Admin Panel link removed from store -->
     <div class="menu-item" onclick="logout()">Logout</div>
   </div>
 
@@ -1288,7 +1268,7 @@
       <!-- Download Section (Hidden initially) -->
       <div class="download-section" id="downloadSection">
         <div class="download-ready">
-          ✅ Purchase Successful! आप अब डाउनलोड कर सकते हैं।
+          ✅ आपने यह ऐप खरीद लिया है! अब डाउनलोड कर सकते हैं।
         </div>
         <button id="detailsInstallLink" class="details-download-btn">Download Now</button>
         <button onclick="openModal()" class="details-download-btn how-btn">
@@ -1385,13 +1365,7 @@
     };
     
     // Initialize Firebase
-    try {
-      firebase.initializeApp(firebaseConfig);
-      console.log("Firebase initialized successfully");
-    } catch (error) {
-      console.error("Firebase initialization error:", error);
-    }
-
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
     
@@ -1404,10 +1378,10 @@
     let selectedAmount = 0;
     let currentAppDetails = null;
     let currentUser = null;
+    let purchasedApps = []; // Array of purchased app IDs
 
     // Auth State Observer
     auth.onAuthStateChanged(async (user) => {
-      console.log("Auth state changed:", user ? user.email : "No user");
       if (user) {
         currentUser = user;
         document.getElementById('registerPage').style.display = 'none';
@@ -1423,6 +1397,9 @@
         
         // Load user balance from Firestore
         await loadUserBalance(user.uid);
+        
+        // Load user's purchased apps
+        await loadUserPurchases(user.uid);
       } else {
         currentUser = null;
         document.getElementById('registerPage').style.display = 'flex';
@@ -1457,6 +1434,21 @@
         }
       } catch (error) {
         console.error("Error loading user balance:", error);
+      }
+    }
+
+    // Load user's purchased apps
+    async function loadUserPurchases(userId) {
+      try {
+        const snapshot = await db.collection("purchases")
+          .where("userId", "==", userId)
+          .get();
+        
+        purchasedApps = snapshot.docs.map(doc => doc.data().appId);
+        console.log("Purchased apps:", purchasedApps);
+      } catch (error) {
+        console.error("Error loading purchases:", error);
+        purchasedApps = [];
       }
     }
 
@@ -1823,9 +1815,15 @@
         balance: userBalance
       });
       
-      updateBalanceDisplay();
-      savePurchaseToFirebase();
+      // Save purchase to Firestore
+      await savePurchaseToFirebase();
       
+      // Add this app to purchasedApps array
+      purchasedApps.push(currentAppDetails.id);
+      
+      updateBalanceDisplay();
+      
+      // Hide purchase section and show download section
       document.getElementById('purchaseSection').style.display = 'none';
       document.getElementById('downloadSection').style.display = 'block';
       
@@ -1834,7 +1832,7 @@
       alert(`✅ Purchase Successful! आपका नया बैलेंस: ₹${userBalance}`);
     }
 
-    function savePurchaseToFirebase() {
+    async function savePurchaseToFirebase() {
       if (!currentAppDetails || !currentUser) return;
       
       const purchaseData = {
@@ -1846,13 +1844,8 @@
         timestamp: new Date().toISOString()
       };
       
-      db.collection("purchases").add(purchaseData)
-        .then((docRef) => {
-          console.log("Purchase saved with ID: ", docRef.id);
-        })
-        .catch((error) => {
-          console.error("Error saving purchase: ", error);
-        });
+      await db.collection("purchases").add(purchaseData);
+      console.log("Purchase saved");
     }
 
     // App Details Functions
@@ -1876,7 +1869,21 @@
             gallery.appendChild(img);
           });
 
-          // FIXED: Download button now directly opens the download link from Firestore
+          // Check if user has purchased this app
+          const hasPurchased = purchasedApps.includes(appId);
+          
+          if (hasPurchased) {
+            // If purchased, show download section directly
+            document.getElementById('purchaseSection').style.display = 'none';
+            document.getElementById('downloadSection').style.display = 'block';
+          } else {
+            // If not purchased, show purchase section
+            document.getElementById('purchaseSection').style.display = 'block';
+            document.getElementById('downloadSection').style.display = 'none';
+            updatePurchaseSection();
+          }
+
+          // Setup download button
           document.getElementById("detailsInstallLink").onclick = function(e) {
             e.preventDefault();
             const downloadLink = data.downloadLink;
@@ -1888,7 +1895,6 @@
             window.open(downloadLink, "_blank");
           };
 
-          updatePurchaseSection();
         } else {
           document.getElementById('detailsAppName').innerText = "App not found.";
         }
