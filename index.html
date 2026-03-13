@@ -1084,7 +1084,7 @@
   <div id="loginPage" class="auth-page" style="display: none;">
     <div class="auth-container">
       <div class="auth-header">
-        <h1> DEVIL App Store</h1>
+        <h1>Macro App Store</h1>
         <p>Login to your account</p>
       </div>
       <form class="auth-form" id="loginForm">
@@ -1270,7 +1270,7 @@
         </button>
       </div>
 
-      <!-- AD BANNER REMOVED -->
+      <!-- ALL ADS REMOVED -->
 
     </div>
   </div>
@@ -1396,12 +1396,13 @@
       }
     });
 
-    // Load user balance from Firestore
+    // Load user balance from Firestore (never negative)
     async function loadUserBalance(userId) {
       try {
         const userDoc = await db.collection("users").doc(userId).get();
         if (userDoc.exists) {
-          userBalance = userDoc.data().balance || 0;
+          // Ensure balance is never negative
+          userBalance = Math.max(0, userDoc.data().balance || 0);
         } else {
           // Create user document if not exists
           await db.collection("users").doc(userId).set({
@@ -1508,8 +1509,10 @@
       window.location.hash = '';
     }
 
-    // Update balance display
+    // Update balance display (always non-negative)
     function updateBalanceDisplay() {
+      // Ensure balance is never negative before displaying
+      userBalance = Math.max(0, userBalance);
       document.getElementById('balanceAmount').textContent = userBalance;
       document.getElementById('currentBalance').textContent = userBalance;
     }
@@ -1652,15 +1655,17 @@
             const userDoc = await transaction.get(userRef);
             if (userDoc.exists) {
               const currentBalance = userDoc.data().balance || 0;
+              // Ensure new balance is never negative (though adding money should always increase)
+              const newBalance = currentBalance + amount;
               transaction.update(userRef, { 
-                balance: currentBalance + amount 
+                balance: newBalance 
               });
             }
           });
           
-          // If this is the current user, update local balance
+          // If this is the current user, update local balance (ensure non-negative)
           if (currentUser && currentUser.uid === userId) {
-            userBalance += amount;
+            userBalance = Math.max(0, userBalance + amount);
             updateBalanceDisplay();
             if (currentAppDetails) {
               updatePurchaseSection();
@@ -1791,6 +1796,14 @@
       
       const appPrice = currentAppDetails.price || 0;
       
+      // Final safety check before deducting
+      if (userBalance < appPrice) {
+        alert(`❌ अपर्याप्त बैलेंस! यह ऐप खरीदने के लिए आपके पास पर्याप्त पैसे नहीं हैं।`);
+        closeConfirmModal();
+        return;
+      }
+      
+      // Deduct balance (this will always keep it non-negative because of the check above)
       userBalance -= appPrice;
       
       // Update balance in Firestore
