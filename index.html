@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>DEVIL App Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #111;
+      color: #fff;
+      -ms-content-zooming: none;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+      min-height: 100vh;
+    }
+
+    html, body {
+      touch-action: manipulation;
+      height: 100%;
+    }
+
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* Auth Pages */
+    .auth-page {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .auth-container {
+      background: rgba(30, 30, 30, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(79, 70, 229, 0.3);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .auth-header h1 {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .auth-header p {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .auth-form .form-group {
+      margin-bottom: 20px;
+    }
+
+    .auth-form label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ddd;
+      font-size: 0.9rem;
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .auth-form input:focus {
+      border-color: #4f46e5;
+    }
+
+    .auth-form input::placeholder {
+      color: #666;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform 0.3s;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 20px;
+      color: #aaa;
+    }
+
+    .auth-switch a {
+      color: #4f46e5;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-switch a:hover {
+      text-decoration: underline;
+    }
+
+    .auth-message {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      min-height: 20px;
+    }
+
+    .auth-message.error {
+      color: #dc2626;
+    }
+
+    .auth-message.success {
+      color: #10b981;
+    }
+
+    /* Header Styles */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: #1f1f1f;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: none;
+    }
+
+    .store-title {
+      font-size: 1.8rem;
+      background: linear-gradient(80deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .icon {
+      cursor: pointer;
+      font-size: 1.5rem;
+      position: relative;
+    }
+
+    #notif-dot {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+    }
+
+    .dropdown-menu {
+      display: none;
+      flex-direction: column;
+      background: #222;
+      position: absolute;
+      top: 60px;
+      right: 1rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      z-index: 100;
+    }
+
+    .dropdown-menu a, .dropdown-menu .menu-item {
+      color: #ccc;
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+
+    .dropdown-menu .menu-item:hover {
+      background: #333;
+      border-radius: 5px;
+    }
+
+    .balance-btn {
+      cursor: pointer;
+      font-size: 0.9rem;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .balance-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Main App Store Page */
+    .main-page {
+      display: none;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    .search-bar {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .search-bar-inner {
+      display: flex;
+      background: #333;
+      border-radius: 50px;
+      padding: 0.2rem;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    #searchInput {
+      flex: 1;
+      border: none;
+      border-radius: 50px 0 0 50px;
+      padding: 0.8rem;
+      background: transparent;
+      color: #fff;
+      outline: none;
+    }
+
+    #categorySelect {
+      border: none;
+      background: transparent;
+      color: #fff;
+      padding: 0 1rem;
+      border-radius: 0 50px 50px 0;
+      outline: none;
+    }
+
+    #app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 12px;
+      justify-items: center;
+    }
+
+    .app-card {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      width: 100%;
+      max-width: 120px;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .app-card:hover {
+      transform: scale(1.03);
+    }
+
+    .app-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .app-card h3 {
+      font-size: 1rem;
+      margin: 0.5rem 0 0.2rem;
+    }
+
+    .app-card p {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin: 0;
+    }
+
+    .view-btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.75rem;
+      background: linear-gradient(90deg, #3b82f6, #06b6d4);
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+
+    /* Notifications Modal */
+    .notifications-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .notifications-content {
+      background: #222;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .notifications-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .notifications-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .notification-item {
+      background: #333;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .notification-time {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    /* Payment Page */
+    .payment-page {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .payment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: #1f1f1f;
+    }
+
+    .payment-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .payment-container {
+      max-width: 500px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    .payment-card {
+      background: #1e1e1e;
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .qr-container {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1.5rem 0;
+      display: inline-block;
+    }
+
+    .qr-code {
+      width: 200px;
+      height: 200px;
+      background: #f0f0f0;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: #333;
+      text-align: center;
+    }
+
+    .qr-code img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 5px;
+    }
+
+    .payment-instructions {
+      background: #333;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      text-align: left;
+    }
+
+    .instructions-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #4f46e5;
+    }
+
+    .instructions-list {
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+
+    .instructions-list li {
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .amount-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 1.5rem 0;
+    }
+
+    .amount-option {
+      background: #333;
+      border: 2px solid transparent;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .amount-option:hover {
+      background: #444;
+    }
+
+    .amount-option.selected {
+      border-color: #4f46e5;
+      background: #2a2a2a;
+    }
+
+    .custom-amount {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: #333;
+      color: white;
+      margin: 10px 0;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .upi-id {
+      background: #333;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-family: monospace;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .copy-btn {
+      background: #4f46e5;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+
+    /* UTR Modal */
+    .utr-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+    }
+
+    .utr-modal-content {
+      background: #1e1e1e;
+      margin: 20% auto;
+      padding: 2rem;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #4f46e5;
+    }
+
+    .utr-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #4f46e5;
+    }
+
+    .utr-input {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: #333;
+      color: white;
+      margin: 1rem 0;
+      font-size: 1rem;
+    }
+
+    .utr-note {
+      font-size: 0.9rem;
+      color: #ffaa00;
+      margin-bottom: 1.5rem;
+    }
+
+    .utr-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .utr-submit {
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .utr-cancel {
+      background: #dc2626;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    /* Admin Panel */
+    .admin-panel {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 10000;
+      overflow-y: auto;
+      padding: 2rem 1rem;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .admin-title {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    .request-card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 5px solid #f59e0b;
+    }
+
+    .request-card.approved {
+      border-left-color: #10b981;
+      opacity: 0.7;
+    }
+
+    .request-amount {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4f46e5;
+    }
+
+    .request-detail {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin: 0.3rem 0;
+    }
+
+    .approve-btn {
+      background: #10b981;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+
+    .reject-btn {
+      background: #dc2626;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* App Details Page */
+    .app-details-page {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .details-container {
+      max-width: 800px;
+      margin: auto;
+      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .details-app-logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      object-fit: cover;
+      background: #333;
+    }
+
+    .details-title {
+      font-size: 1.8rem;
+    }
+
+    .version {
+      font-size: 0.9rem;
+      color: #bbb;
+    }
+
+    #appDescription {
+      margin-top: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .screenshots {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+    }
+
+    .screenshots img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 15px;
+      background: #222;
+    }
+
+    .purchase-section {
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .purchase-info {
+      background: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin-bottom: 1.5rem;
+    }
+
+    .price-tag {
+      font-size: 2rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, #4f46e5, #c026d3);
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .balance-check {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .confirm-purchase-btn {
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 1rem 0;
+      transition: all 0.3s;
+    }
+
+    .confirm-purchase-btn:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+
+    .confirm-purchase-btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .download-section {
+      display: none;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .download-ready {
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      font-weight: bold;
+    }
+
+    .details-download-btn {
+      background: linear-gradient(to right, #6d28d9, #d946ef);
+      color: white;
+      padding: 0.7rem 1.6rem;
+      border: none;
+      border-radius: 999px;
+      font-size: 1rem;
+      margin: 0 auto;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+      width: 200px;
+    }
+
+    .details-download-btn:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    .how-btn {
+      background: linear-gradient(to right, #3b82f6, #06b6d4);
+      margin-top: 1rem;
+    }
+
+    .back-btn {
+      background: #333;
+      color: white;
+      padding: 0.7rem 1.6rem;
+      border: none;
+      border-radius: 999px;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background: #444;
+    }
+
+    .balance-warning {
+      background: #dc2626;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .balance-success {
+      background: #10b981;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    /* Confirm Purchase Modal */
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    .confirm-modal-content {
+      background: #1e1e1e;
+      margin: 15% auto;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #4f46e5;
+    }
+
+    .confirm-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #4f46e5;
+    }
+
+    .confirm-message {
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .confirm-price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #10b981;
+      margin: 1rem 0;
+    }
+
+    .confirm-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .confirm-yes {
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .confirm-no {
+      background: #dc2626;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    /* Instruction Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal-content {
+      background-color: #00CFFF;
+      margin: 10% auto;
+      padding: 30px 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .modal-content .hindi-text {
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.6;
+      text-shadow: 1px 1px 0 red;
+      color: black;
+    }
+
+    .modal-content .english-text {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1.6;
+      text-shadow: 1px 1px 0 yellow;
+      color: black;
+    }
+
+    .modal-close-btn {
+      background: crimson;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin-top: 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal-close-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body ongesturestart="event.preventDefault()" ongesturechange="event.preventDefault()" ongestureend="event.preventDefault()">
+  <div id="particles-js"></div>
+  
+  <!-- Register Page -->
+  <div id="registerPage" class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>DEVIL App Store</h1>
+        <p>Create your account</p>
+      </div>
+      <form class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="registerUsername" placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="registerEmail" placeholder="Enter email" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="registerPassword" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="auth-btn">Register</button>
+        <div class="auth-switch">
+          Already have an account? <a onclick="showLoginPage()">Login</a>
+        </div>
+        <div id="registerMessage" class="auth-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="auth-page" style="display: none;">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>DEVIL App Store</h1>
+        <p>Login to your account</p>
+      </div>
+      <form class="auth-form" id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter email" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="auth-btn">Login</button>
+        <div class="auth-switch">
+          Don't have an account? <a onclick="showRegisterPage()">Register</a>
+        </div>
+        <div id="loginMessage" class="auth-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Header (Always Visible after login) -->
+  <div class="header" id="mainHeader">
+    <div class="store-title">DEVIL App Store</div>
+    <div class="icons">
+      <div class="icon" onclick="toggleMenu()">☰</div>
+      <button class="balance-btn" onclick="showPaymentPage()">
+        ₹<span id="balanceAmount">0</span>
+      </button>
+      <div class="icon" onclick="showNotifications()">🔔<span id="notif-dot"></span></div>
+    </div>
+  </div>
+
+  <div class="dropdown-menu" id="dropdownMenu">
+    <div class="menu-item" id="userEmailDisplay">User</div>
+    <a href="https://t.me/+i-ud3p3AJURhNzI1" target="_blank">Telegram</a>
+    <a href="https://youtube.com/@devansh_official_tech?si=-bMmrpWeR4khE6AC" target="_blank">YouTube</a>
+    <a href="https://www.instagram.com/devansh_sharma_303?igsh=YmtiaWNvN241bjM4" target="_blank">Instagram</a>
+    <div class="menu-item" onclick="logout()">Logout</div>
+  </div>
+
+  <!-- Main App Store Page -->
+  <div id="mainPage" class="main-page">
+    <div class="container">
+      <div class="search-bar">
+        <div class="search-bar-inner">
+          <input type="text" id="searchInput" placeholder="Search">
+          <select id="categorySelect" onchange="filterByCategory()">
+            <option value="All">All</option>
+          </select>
+        </div>
+      </div>
+      <div id="app-grid"></div>
+    </div>
+  </div>
+
+  <!-- Payment Page -->
+  <div class="payment-page" id="paymentPage">
+    <div class="payment-header">
+      <button class="close-btn" onclick="hidePaymentPage()">← Back</button>
+      <div class="payment-title">Add Money</div>
+      <div style="width: 40px;"></div>
+    </div>
+    <div class="payment-container">
+      <div class="payment-card">
+        <div style="font-size: 1.2rem; margin-bottom: 1rem;">Scan QR Code to Pay</div>
+        
+        <div class="qr-container">
+          <div class="qr-code">
+            <img src="https://i.ibb.co/C3ms1LPT/IMG-20260312-092237.jpg" alt="UPI QR Code" style="width:100%; height:100%; object-fit:contain;">
+          </div>
+        </div>
+
+        <div class="payment-instructions">
+          <div class="instructions-title">Payment Instructions:</div>
+          <ol class="instructions-list">
+            <li>Open your UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
+            <li>Scan the QR code above</li>
+            <li>Enter the amount and complete payment</li>
+            <li>Copy the UTR/Reference number after payment</li>
+            <li>Click "I Have Paid" and enter UTR number</li>
+            <li>Admin will verify and add money to your balance</li>
+          </ol>
+        </div>
+
+        <div style="margin: 1.5rem 0;">
+          <div style="font-size: 1rem; margin-bottom: 1rem;">Select amount:</div>
+          <input type="number" class="custom-amount" id="customAmount" placeholder="Enter amount (₹)">
+        </div>
+
+        <div class="upi-id">
+          <span id="upiId">devansh7999@ybl</span>
+          <button class="copy-btn" onclick="copyUPI()">Copy</button>
+        </div>
+
+        <button class="submit-btn" onclick="openUTRModal()">
+          I Have Paid
+        </button>
+      </div>
+
+      <div class="payment-card">
+        <div style="font-size: 1.2rem; margin-bottom: 1rem;">Quick Amounts</div>
+        <div class="amount-options">
+          <button class="amount-option" onclick="selectAmount(100)">₹100</button>
+          <button class="amount-option" onclick="selectAmount(200)">₹200</button>
+          <button class="amount-option" onclick="selectAmount(500)">₹500</button>
+          <button class="amount-option" onclick="selectAmount(1000)">₹1000</button>
+          <button class="amount-option" onclick="selectAmount(2000)">₹2000</button>
+          <button class="amount-option" onclick="selectAmount(5000)">₹5000</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UTR Modal -->
+  <div id="utrModal" class="utr-modal">
+    <div class="utr-modal-content">
+      <div class="utr-title">Enter UTR Number</div>
+      <div class="utr-note">Please enter the UTR/Reference number from your payment</div>
+      <input type="text" id="utrInput" class="utr-input" placeholder="e.g. UPI123456789" maxlength="50">
+      <div class="utr-buttons">
+        <button class="utr-submit" onclick="submitUTR()">Submit</button>
+        <button class="utr-cancel" onclick="closeUTRModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel - Hidden from store -->
+  <div id="adminPanel" class="admin-panel">
+    <div class="admin-header">
+      <div class="admin-title">Admin Panel - Payment Requests</div>
+      <button class="close-btn" onclick="hideAdminPanel()">← Back to Store</button>
+    </div>
+    <div id="paymentRequestsList"></div>
+  </div>
+
+  <!-- App Details Page -->
+  <div class="app-details-page" id="appDetailsPage">
+    <div class="details-container">
+      <button class="back-btn" onclick="hideAppDetailsPage()">← Back to Store</button>
+
+      <div class="app-header">
+        <img id="detailsAppLogo" class="details-app-logo" alt="App Logo" />
+        <div>
+          <h1 id="detailsAppName">Loading...</h1>
+          <div class="version" id="detailsAppVersion"></div>
+        </div>
+      </div>
+
+      <div id="appDescription"></div>
+
+      <div class="screenshots" id="screenshotGallery"></div>
+
+      <!-- Purchase Section - Price will be loaded dynamically -->
+      <div class="purchase-section" id="purchaseSection">
+        <div class="purchase-info">
+          <div class="price-tag" id="appPriceTag">Loading...</div>
+          <div class="balance-check" id="balanceCheck">
+            Your Balance: ₹<span id="currentBalance">0</span>
+          </div>
+          
+          <div id="balanceWarning" class="balance-warning" style="display: none;">
+            ❌ अपर्याप्त बैलेंस! कृपया पहले पैसे add करें।
+          </div>
+
+          <div id="balanceSuccess" class="balance-success" style="display: none;">
+            ✅ आपके पास पर्याप्त बैलेंस है! Confirm Purchase करें।
+          </div>
+
+          <button id="confirmPurchaseBtn" class="confirm-purchase-btn" onclick="showConfirmModal()">
+            Confirm Purchase
+          </button>
+        </div>
+      </div>
+
+      <!-- Download Section (Hidden initially) -->
+      <div class="download-section" id="downloadSection">
+        <div class="download-ready">
+          ✅ आपने यह ऐप खरीद लिया है! अब डाउनलोड कर सकते हैं।
+        </div>
+        <button id="detailsInstallLink" class="details-download-btn">Download Now</button>
+        <button onclick="openModal()" class="details-download-btn how-btn">
+          How to Download
+        </button>
+      </div>
+
+      <!-- ALL ADS REMOVED -->
+
+    </div>
+  </div>
+
+  <!-- Confirm Purchase Modal -->
+  <div id="confirmModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+      <div class="confirm-title">Confirm Purchase</div>
+      <div class="confirm-message" id="confirmMessage">
+        क्या आप इस ऐप को खरीदना चाहते हैं?
+      </div>
+      <div class="confirm-price" id="confirmPrice">₹0</div>
+      <div class="confirm-message" id="confirmBalanceAfter">
+        इस खरीदारी के बाद आपका बैलेंस: ₹<span id="balanceAfterPurchase">0</span>
+      </div>
+      <div class="confirm-buttons">
+        <button class="confirm-yes" onclick="confirmPurchase()">Yes, Confirm</button>
+        <button class="confirm-no" onclick="closeConfirmModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div class="notifications-container" id="notificationsContainer">
+    <div class="notifications-content">
+      <div class="notifications-header">
+        <div class="notifications-title">Notifications</div>
+        <button class="close-btn" onclick="hideNotifications()">×</button>
+      </div>
+      <div id="notificationsList"></div>
+    </div>
+  </div>
+
+  <!-- Instruction Modal -->
+  <div id="instructionModal" class="modal">
+    <div class="modal-content">
+      <div class="hindi-text">
+        सबसे पहले डाउनलोड पर क्लिक करें, फिर एक<br>
+        विज्ञापन आएगा। उसके बाद<br>
+        बैक करके दोबारा डाउनलोड पर क्लिक करें, तब ऐप<br>
+        डाउनलोड होना शुरू होगा।
+      </div>
+
+      <div class="english-text">
+        First, click on the download button. An ad will appear.<br>
+        After that, go back and click on download again—the app will start downloading.
+      </div>
+
+      <button class="modal-close-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Disable zoom
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener('wheel', function(e) {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDS472wskQQiDIIpuXo5T1ZnxJTGCVyyoQ",
+      authDomain: "mr-hacker-d6d7f.firebaseapp.com",
+      databaseURL: "https://mr-hacker-d6d7f-default-rtdb.firebaseio.com",
+      projectId: "mr-hacker-d6d7f",
+      storageBucket: "mr-hacker-d6d7f.firebasestorage.app",
+      messagingSenderId: "414827898605",
+      appId: "1:414827898605:web:c836aa47a775cd2e87cee4",
+      measurementId: "G-LG3TG3FNW0"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    
+    // Global Variables
+    const appGrid = document.getElementById("app-grid");
+    const searchInput = document.getElementById("searchInput");
+    const categorySelect = document.getElementById("categorySelect");
+    let allApps = [];
+    let userBalance = 0;
+    let selectedAmount = 0;
+    let currentAppDetails = null;
+    let currentUser = null;
+    let purchasedApps = []; // Array of purchased app IDs
+
+    // Auth State Observer
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('registerPage').style.display = 'none';
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainHeader').style.display = 'flex';
+        document.getElementById('mainPage').style.display = 'block';
+        document.getElementById('userEmailDisplay').textContent = user.email;
+        
+        // Check if user is admin for URL access
+        if (window.location.hash === '#admin' && user.email === 'devil@gmail.com') {
+          showAdminPanel();
+        }
+        
+        // Load user balance from Firestore
+        await loadUserBalance(user.uid);
+        
+        // Load user's purchased apps
+        await loadUserPurchases(user.uid);
+      } else {
+        currentUser = null;
+        document.getElementById('registerPage').style.display = 'flex';
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainHeader').style.display = 'none';
+        document.getElementById('mainPage').style.display = 'none';
+        document.getElementById('paymentPage').style.display = 'none';
+        document.getElementById('appDetailsPage').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'none';
+      }
+    });
+
+    // Load user balance from Firestore (never negative)
+    async function loadUserBalance(userId) {
+      try {
+        const userDoc = await db.collection("users").doc(userId).get();
+        if (userDoc.exists) {
+          // Ensure balance is never negative
+          userBalance = Math.max(0, userDoc.data().balance || 0);
+        } else {
+          // Create user document if not exists
+          await db.collection("users").doc(userId).set({
+            email: currentUser.email,
+            username: currentUser.displayName || currentUser.email.split('@')[0],
+            balance: 0,
+            registrationDate: new Date().toISOString()
+          });
+          userBalance = 0;
+        }
+        updateBalanceDisplay();
+        if (currentAppDetails) {
+          updatePurchaseSection();
+        }
+      } catch (error) {
+        console.error("Error loading user balance:", error);
+      }
+    }
+
+    // Load user's purchased apps
+    async function loadUserPurchases(userId) {
+      try {
+        const snapshot = await db.collection("purchases")
+          .where("userId", "==", userId)
+          .get();
+        
+        purchasedApps = snapshot.docs.map(doc => doc.data().appId);
+        console.log("Purchased apps:", purchasedApps);
+      } catch (error) {
+        console.error("Error loading purchases:", error);
+        purchasedApps = [];
+      }
+    }
+
+    // Show/Hide Pages
+    function showRegisterPage() {
+      document.getElementById('registerPage').style.display = 'flex';
+      document.getElementById('loginPage').style.display = 'none';
+    }
+
+    function showLoginPage() {
+      document.getElementById('registerPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'flex';
+    }
+
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('registerUsername').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const messageEl = document.getElementById('registerMessage');
+
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Update profile with username
+        await user.updateProfile({
+          displayName: username
+        });
+
+        // Create user document in Firestore
+        await db.collection("users").doc(user.uid).set({
+          email: email,
+          username: username,
+          balance: 0,
+          registrationDate: new Date().toISOString()
+        });
+
+        messageEl.textContent = 'Registration successful! Logging in...';
+        messageEl.className = 'auth-message success';
+        
+        // Auto login happens via onAuthStateChanged
+      } catch (error) {
+        messageEl.textContent = error.message;
+        messageEl.className = 'auth-message error';
+      }
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const messageEl = document.getElementById('loginMessage');
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        messageEl.textContent = 'Login successful!';
+        messageEl.className = 'auth-message success';
+      } catch (error) {
+        messageEl.textContent = error.message;
+        messageEl.className = 'auth-message error';
+      }
+    });
+
+    // Logout
+    function logout() {
+      auth.signOut();
+      toggleMenu();
+      window.location.hash = '';
+    }
+
+    // Update balance display (always non-negative)
+    function updateBalanceDisplay() {
+      // Ensure balance is never negative before displaying
+      userBalance = Math.max(0, userBalance);
+      document.getElementById('balanceAmount').textContent = userBalance;
+      document.getElementById('currentBalance').textContent = userBalance;
+    }
+
+    // Update purchase section based on balance and current app price
+    function updatePurchaseSection() {
+      if (!currentAppDetails) return;
+      
+      const balanceWarning = document.getElementById('balanceWarning');
+      const balanceSuccess = document.getElementById('balanceSuccess');
+      const confirmPurchaseBtn = document.getElementById('confirmPurchaseBtn');
+      const priceTag = document.getElementById('appPriceTag');
+      const appPrice = currentAppDetails.price || 0;
+      
+      // Update price display
+      priceTag.textContent = `₹${appPrice}`;
+      confirmPurchaseBtn.textContent = `Confirm Purchase - ₹${appPrice}`;
+      
+      if (userBalance >= appPrice) {
+        balanceWarning.style.display = 'none';
+        balanceSuccess.style.display = 'block';
+        confirmPurchaseBtn.disabled = false;
+      } else {
+        balanceWarning.style.display = 'block';
+        balanceSuccess.style.display = 'none';
+        confirmPurchaseBtn.disabled = true;
+      }
+    }
+
+    // Page Navigation Functions
+    function showPaymentPage() {
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('paymentPage').style.display = 'block';
+      document.getElementById('appDetailsPage').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'none';
+    }
+
+    function hidePaymentPage() {
+      document.getElementById('paymentPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+      if (currentAppDetails) {
+        updatePurchaseSection();
+      }
+    }
+
+    function showAppDetailsPage(appId) {
+      loadAppDetails(appId);
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('paymentPage').style.display = 'none';
+      document.getElementById('appDetailsPage').style.display = 'block';
+      document.getElementById('adminPanel').style.display = 'none';
+    }
+
+    function hideAppDetailsPage() {
+      document.getElementById('appDetailsPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+    }
+
+    // Admin Panel Functions
+    function showAdminPanel() {
+      if (currentUser && currentUser.email === 'devil@gmail.com') {
+        document.getElementById('mainPage').style.display = 'none';
+        document.getElementById('paymentPage').style.display = 'none';
+        document.getElementById('appDetailsPage').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        loadPaymentRequests();
+        window.location.hash = 'admin';
+      } else {
+        alert('Unauthorized access');
+        window.location.hash = '';
+      }
+    }
+
+    function hideAdminPanel() {
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+      window.location.hash = '';
+    }
+
+    function loadPaymentRequests() {
+      const requestsList = document.getElementById('paymentRequestsList');
+      
+      db.collection("paymentRequests")
+        .orderBy("timestamp", "desc")
+        .onSnapshot(snapshot => {
+          requestsList.innerHTML = '';
+          
+          if (snapshot.empty) {
+            requestsList.innerHTML = '<div style="text-align: center; padding: 20px;">No payment requests found</div>';
+            return;
+          }
+          
+          snapshot.forEach(doc => {
+            const request = { id: doc.id, ...doc.data() };
+            const requestCard = document.createElement('div');
+            requestCard.className = `request-card ${request.status === 'approved' ? 'approved' : ''}`;
+            
+            let timeString = 'Unknown';
+            if (request.timestamp) {
+              try {
+                timeString = new Date(request.timestamp.toDate()).toLocaleString();
+              } catch (e) {
+                timeString = 'Invalid date';
+              }
+            }
+            
+            requestCard.innerHTML = `
+              <div class="request-amount">₹${request.amount}</div>
+              <div class="request-detail">UTR: ${request.utr}</div>
+              <div class="request-detail">User: ${request.userEmail || 'Unknown'}</div>
+              <div class="request-detail">Time: ${timeString}</div>
+              <div class="request-detail">Status: ${request.status || 'pending'}</div>
+              ${request.status === 'pending' ? `
+                <div style="margin-top: 1rem;">
+                  <button class="approve-btn" onclick="approvePayment('${doc.id}', ${request.amount}, '${request.userId || ''}')">Approve</button>
+                  <button class="reject-btn" onclick="rejectPayment('${doc.id}')">Reject</button>
+                </div>
+              ` : ''}
+            `;
+            
+            requestsList.appendChild(requestCard);
+          });
+        });
+    }
+
+    async function approvePayment(requestId, amount, userId) {
+      if (!confirm(`Approve payment of ₹${amount}?`)) return;
+      
+      try {
+        // Update payment request status
+        await db.collection("paymentRequests").doc(requestId).update({
+          status: 'approved',
+          approvedAt: new Date().toISOString()
+        });
+
+        // Add balance to user if userId exists
+        if (userId) {
+          const userRef = db.collection("users").doc(userId);
+          await db.runTransaction(async (transaction) => {
+            const userDoc = await transaction.get(userRef);
+            if (userDoc.exists) {
+              const currentBalance = userDoc.data().balance || 0;
+              // Ensure new balance is never negative (though adding money should always increase)
+              const newBalance = currentBalance + amount;
+              transaction.update(userRef, { 
+                balance: newBalance 
+              });
+            }
+          });
+          
+          // If this is the current user, update local balance (ensure non-negative)
+          if (currentUser && currentUser.uid === userId) {
+            userBalance = Math.max(0, userBalance + amount);
+            updateBalanceDisplay();
+            if (currentAppDetails) {
+              updatePurchaseSection();
+            }
+          }
+        }
+
+        alert('Payment approved! Balance updated.');
+      } catch (error) {
+        console.error('Error approving payment:', error);
+        alert('Error approving payment: ' + error.message);
+      }
+    }
+
+    function rejectPayment(requestId) {
+      if (!confirm('Reject this payment request?')) return;
+      
+      db.collection("paymentRequests").doc(requestId).update({
+        status: 'rejected',
+        rejectedAt: new Date().toISOString()
+      }).then(() => {
+        alert('Payment rejected.');
+      }).catch(error => {
+        alert('Error rejecting payment: ' + error.message);
+      });
+    }
+
+    // Payment Functions
+    function selectAmount(amount) {
+      selectedAmount = amount;
+      document.getElementById('customAmount').value = amount;
+      
+      const buttons = document.querySelectorAll('.amount-option');
+      buttons.forEach(button => {
+        button.classList.remove('selected');
+      });
+      
+      event.target.classList.add('selected');
+    }
+
+    function copyUPI() {
+      const upiId = document.getElementById('upiId').textContent;
+      navigator.clipboard.writeText(upiId).then(() => {
+        alert('UPI ID copied to clipboard: ' + upiId);
+      });
+    }
+
+    function openUTRModal() {
+      const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+      
+      if (!amount || amount <= 0) {
+        alert('कृपया पहले राशि चुनें या दर्ज करें');
+        return;
+      }
+      
+      document.getElementById('utrModal').style.display = 'block';
+    }
+
+    function closeUTRModal() {
+      document.getElementById('utrModal').style.display = 'none';
+      document.getElementById('utrInput').value = '';
+    }
+
+    function submitUTR() {
+      const amount = selectedAmount || parseInt(document.getElementById('customAmount').value);
+      const utr = document.getElementById('utrInput').value.trim();
+      
+      if (!amount || amount <= 0) {
+        alert('कृपया वैध राशि दर्ज करें');
+        return;
+      }
+      
+      if (!utr) {
+        alert('कृपया UTR नंबर दर्ज करें');
+        return;
+      }
+      
+      // Save payment request to Firebase with user info
+      db.collection("paymentRequests").add({
+        amount: amount,
+        utr: utr,
+        userId: currentUser?.uid,
+        userEmail: currentUser?.email,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'pending'
+      }).then(() => {
+        alert('आपका भुगतान अनुरोध भेज दिया गया है। एडमिन द्वारा सत्यापन के बाद बैलेंस जोड़ दिया जाएगा।');
+        closeUTRModal();
+        hidePaymentPage();
+        
+        // Reset form
+        selectedAmount = 0;
+        document.getElementById('customAmount').value = '';
+        document.getElementById('utrInput').value = '';
+        const buttons = document.querySelectorAll('.amount-option');
+        buttons.forEach(button => {
+          button.classList.remove('selected');
+        });
+      }).catch(error => {
+        alert('कुछ गलत हो गया। कृपया पुन: प्रयास करें।');
+        console.error(error);
+      });
+    }
+
+    // Purchase Functions
+    function showConfirmModal() {
+      if (!currentAppDetails) return;
+      
+      const appPrice = currentAppDetails.price || 0;
+      
+      if (userBalance < appPrice) {
+        alert(`❌ अपर्याप्त बैलेंस! कृपया पहले पैसे add करें।`);
+        return;
+      }
+      
+      document.getElementById('confirmMessage').textContent = `क्या आप ${currentAppDetails.name} को ₹${appPrice} में खरीदना चाहते हैं?`;
+      document.getElementById('confirmPrice').textContent = `₹${appPrice}`;
+      document.getElementById('balanceAfterPurchase').textContent = userBalance - appPrice;
+      document.getElementById('confirmModal').style.display = 'block';
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+    }
+
+    async function confirmPurchase() {
+      if (!currentUser || !currentAppDetails) return;
+      
+      const appPrice = currentAppDetails.price || 0;
+      
+      // Final safety check before deducting
+      if (userBalance < appPrice) {
+        alert(`❌ अपर्याप्त बैलेंस! यह ऐप खरीदने के लिए आपके पास पर्याप्त पैसे नहीं हैं।`);
+        closeConfirmModal();
+        return;
+      }
+      
+      // Deduct balance (this will always keep it non-negative because of the check above)
+      userBalance -= appPrice;
+      
+      // Update balance in Firestore
+      const userRef = db.collection("users").doc(currentUser.uid);
+      await userRef.update({
+        balance: userBalance
+      });
+      
+      // Save purchase to Firestore
+      await savePurchaseToFirebase();
+      
+      // Add this app to purchasedApps array
+      purchasedApps.push(currentAppDetails.id);
+      
+      updateBalanceDisplay();
+      
+      // Hide purchase section and show download section
+      document.getElementById('purchaseSection').style.display = 'none';
+      document.getElementById('downloadSection').style.display = 'block';
+      
+      closeConfirmModal();
+      
+      alert(`✅ Purchase Successful! आपका नया बैलेंस: ₹${userBalance}`);
+    }
+
+    async function savePurchaseToFirebase() {
+      if (!currentAppDetails || !currentUser) return;
+      
+      const purchaseData = {
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        appId: currentAppDetails.id,
+        appName: currentAppDetails.name,
+        price: currentAppDetails.price || 0,
+        timestamp: new Date().toISOString()
+      };
+      
+      await db.collection("purchases").add(purchaseData);
+      console.log("Purchase saved");
+    }
+
+    // App Details Functions
+    function loadAppDetails(appId) {
+      db.collection("apps").doc(appId).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          currentAppDetails = { id: doc.id, ...data };
+          
+          document.getElementById('detailsAppName').innerText = data.name || "No name";
+          document.getElementById('detailsAppLogo').src = data.logoUrl || '';
+          document.getElementById('detailsAppVersion').innerText = "Version: " + (data.version || "N/A");
+          document.getElementById('appDescription').innerHTML = data.description || "<i>No description provided.</i>";
+
+          const gallery = document.getElementById("screenshotGallery");
+          gallery.innerHTML = '';
+          const screenshots = data.screenshots || [];
+          screenshots.forEach(url => {
+            const img = document.createElement("img");
+            img.src = url;
+            gallery.appendChild(img);
+          });
+
+          // Check if user has purchased this app
+          const hasPurchased = purchasedApps.includes(appId);
+          
+          if (hasPurchased) {
+            // If purchased, show download section directly
+            document.getElementById('purchaseSection').style.display = 'none';
+            document.getElementById('downloadSection').style.display = 'block';
+          } else {
+            // If not purchased, show purchase section
+            document.getElementById('purchaseSection').style.display = 'block';
+            document.getElementById('downloadSection').style.display = 'none';
+            updatePurchaseSection();
+          }
+
+          // Setup download button
+          document.getElementById("detailsInstallLink").onclick = function(e) {
+            e.preventDefault();
+            const downloadLink = data.downloadLink;
+            if (!downloadLink || downloadLink === "#") {
+              alert("Download link not available for this app.");
+              return;
+            }
+            // Open the download link directly in a new tab
+            window.open(downloadLink, "_blank");
+          };
+
+        } else {
+          document.getElementById('detailsAppName').innerText = "App not found.";
+        }
+      }).catch(error => {
+        document.getElementById('detailsAppName').innerText = "Error loading app.";
+        console.error("Error fetching app:", error);
+      });
+    }
+
+    // Notifications Functions
+    function showNotifications() {
+      document.getElementById('notificationsContainer').style.display = 'flex';
+      loadNotifications();
+      toggleMenu();
+    }
+
+    function hideNotifications() {
+      document.getElementById('notificationsContainer').style.display = 'none';
+    }
+
+    function loadNotifications() {
+      const notificationsList = document.getElementById('notificationsList');
+      notificationsList.innerHTML = '';
+      
+      // Get notifications from Firestore
+      db.collection("notifications").orderBy("timestamp", "desc").limit(5).get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            notificationsList.innerHTML = '<div class="notification-item">No notifications</div>';
+            return;
+          }
+          
+          snapshot.forEach(doc => {
+            const notif = doc.data();
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item';
+            
+            let timeString = 'Unknown';
+            if (notif.timestamp) {
+              try {
+                timeString = new Date(notif.timestamp.toDate()).toLocaleString();
+              } catch (e) {
+                timeString = 'Invalid date';
+              }
+            }
+            
+            notificationItem.innerHTML = `
+              <div class="notification-title">${notif.title}</div>
+              <div>${notif.message}</div>
+              <div class="notification-time">${timeString}</div>
+            `;
+            notificationsList.appendChild(notificationItem);
+          });
+        })
+        .catch(error => {
+          console.error("Error loading notifications:", error);
+          notificationsList.innerHTML = '<div class="notification-item">Error loading notifications</div>';
+        });
+    }
+
+    // App Store Functions
+    db.collection("apps").onSnapshot(snapshot => {
+      allApps = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      displayApps(allApps);
+    }, error => {
+      console.error("Error loading apps:", error);
+    });
+
+    db.collection("categories").onSnapshot(snapshot => {
+      categorySelect.innerHTML = '<option value="All">All</option>';
+      snapshot.forEach(doc => {
+        const category = doc.data().name;
+        categorySelect.innerHTML += `<option value="${category}">${category}</option>`;
+      });
+    }, error => {
+      console.error("Error loading categories:", error);
+    });
+
+    function displayApps(apps) {
+      appGrid.innerHTML = "";
+      apps.forEach(app => {
+        const appCard = document.createElement('div');
+        appCard.className = 'app-card';
+        
+        appCard.innerHTML = `
+          <img src="${app.logoUrl}" class="app-logo" alt="${app.name}" />
+          <h3>${app.name}</h3>
+          <p>₹${app.price || 0}</p>
+          <div class="view-btn">View</div>
+        `;
+        
+        appCard.addEventListener('click', function() {
+          showAppDetailsPage(app.id);
+        });
+        
+        appGrid.appendChild(appCard);
+      });
+    }
+
+    function filterByCategory() {
+      const category = categorySelect.value;
+      const keyword = searchInput.value.toLowerCase();
+      const filtered = allApps.filter(app => {
+        const matchCategory = category === "All" || app.category === category;
+        const matchKeyword = app.name.toLowerCase().includes(keyword);
+        return matchCategory && matchKeyword;
+      });
+      displayApps(filtered);
+    }
+
+    // Utility Functions
+    function toggleMenu() {
+      const dropdownMenu = document.getElementById("dropdownMenu");
+      dropdownMenu.style.display = dropdownMenu.style.display === "flex" ? "none" : "flex";
+    }
+
+    function openModal() {
+      document.getElementById("instructionModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("instructionModal").style.display = "none";
+    }
+
+    // Event Listeners
+    searchInput.addEventListener("input", () => filterByCategory());
+
+    document.getElementById('customAmount').addEventListener('input', function() {
+      const amount = parseInt(this.value) || 0;
+      selectedAmount = amount;
+      
+      const buttons = document.querySelectorAll('.amount-option');
+      buttons.forEach(button => {
+        button.classList.remove('selected');
+      });
+    });
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("instructionModal");
+      const confirmModal = document.getElementById("confirmModal");
+      const utrModal = document.getElementById("utrModal");
+      const dropdown = document.getElementById("dropdownMenu");
+      
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+      if (event.target === confirmModal) {
+        confirmModal.style.display = "none";
+      }
+      if (event.target === utrModal) {
+        utrModal.style.display = "none";
+      }
+      if (!event.target.closest('.icons') && !event.target.closest('.dropdown-menu')) {
+        dropdown.style.display = 'none';
+      }
+    }
+
+    // Check URL hash for admin access
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#admin' && currentUser) {
+        if (currentUser.email === 'devil@gmail.com') {
+          showAdminPanel();
+        } else {
+          window.location.hash = '';
+        }
+      }
+    });
+
+    // Initialize
+    window.onload = function() {
+      console.log("Page loaded");
+      // Check URL hash for admin panel
+      if (window.location.hash === '#admin') {
+        // Will be handled by auth state observer
+      }
+    };
+
+    // Particles Background
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 50, density: { enable: true, value_area: 800 } },
+        color: { value: "#00ff00" },
+        shape: { type: "circle" },
+        opacity: { value: 0.3 },
+        size: { value: 3 },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#00ff00",
+          opacity: 0.2,
+          width: 1
+        },
+        move: { enable: true, speed: 1 }
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "repulse" }
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+</body>
+</html>
