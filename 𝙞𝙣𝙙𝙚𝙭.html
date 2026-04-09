@@ -953,7 +953,9 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
     import { getDatabase, ref, set, get, push, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
     const firebaseConfig = { apiKey: "AIzaSyDS472wskQQiDIIpuXo5T1ZnxJTGCVyyoQ", authDomain: "mr-hacker-d6d7f.firebaseapp.com", databaseURL: "https://mr-hacker-d6d7f-default-rtdb.firebaseio.com", projectId: "mr-hacker-d6d7f", storageBucket: "mr-hacker-d6d7f.firebasestorage.app", messagingSenderId: "414827898605", appId: "1:414827898605:web:c836aa47a775cd2e87cee4" };
+    const app = initializeApp(firebaseConfig); };
     const app = initializeApp(firebaseConfig);
+    
     const auth = getAuth(app);
     const db = getDatabase(app);
     window.auth = auth; window.db = db; window.dbRef = ref; window.dbSet = set; window.dbGet = get; window.dbPush = push; window.dbOnValue = onValue; window.dbRemove = remove; window.dbUpdate = update;
