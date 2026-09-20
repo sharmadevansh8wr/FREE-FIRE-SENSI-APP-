@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>9X NUMBER PANEL</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      overflow: hidden;
+      background: #000;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    #website {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+      z-index: 1;
+    }
+
+    /* ============ FLOATING CIRCLE ============ */
+    #floating {
+      position: fixed;
+      right: 14px;
+      top: 52%;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 35% 30%, #ffffff 0 4%, #70e7ff 8%, #3476ff 38%, #6416d8 68%, #160021 100%);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 8px #7200ff, 0 0 18px #a900ff, 0 0 28px rgba(160, 0, 255, 0.55);
+      animation: float 2.5s ease-in-out infinite;
+      cursor: grab;
+      transition: transform 0.2s;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+    }
+    #floating:active { cursor: grabbing; }
+    #floating.dragging { animation: none; transform: scale(1.08); }
+
+    #floating .logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    #floating span {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      text-shadow: 0 0 5px #fff, 0 0 10px #00ffff;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* ============ PANEL ============ */
+    #panel {
+      position: fixed;
+      z-index: 100000;
+      right: 12px;
+      top: 50%;
+      left: auto;
+      width: 310px;
+      max-width: 88vw;
+      transform: translate(120%, -50%) scale(0.75);
+      opacity: 0;
+      pointer-events: none;
+      border-radius: 26px;
+      background: linear-gradient(145deg, #1a0028, #0a0010);
+      border: 1px solid rgba(211, 92, 255, 0.55);
+      box-shadow: 0 0 12px #7900a8, 0 0 35px rgba(159, 0, 255, 0.55), inset 0 0 35px rgba(142, 0, 255, 0.18);
+      transition: opacity 0.3s ease, transform 0.35s ease;
+      overflow: hidden;
+    }
+    #panel.active {
+      transform: translate(0, -50%) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #panel.dragging { transition: none !important; }
+
+    /* ============ SIDE LINES ============ */
+    .side-line {
+      position: absolute;
+      background: #ffffff;
+      border-radius: 4px;
+      box-shadow: 0 0 4px #ffffff, 0 0 8px rgba(212, 0, 255, 0.6);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .side-line.left { left: 6px; top: 50%; transform: translateY(-50%); width: 4px; height: 30%; }
+    .side-line.right { right: 6px; top: 50%; transform: translateY(-50%); width: 4px; height: 30%; }
+    .side-line.top { top: 6px; left: 50%; transform: translateX(-50%); width: 30%; height: 4px; }
+    .side-line.bottom { bottom: 6px; left: 50%; transform: translateX(-50%); width: 30%; height: 4px; }
+
+    /* ============ SCAN LINE ============ */
+    .scan-line {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 15%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0.05) 85%, transparent 100%);
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.6), 0 0 10px rgba(180, 0, 255, 0.4);
+      z-index: 15;
+      pointer-events: none;
+      animation: scan 3s linear infinite;
+      top: 0;
+      opacity: 0.7;
+    }
+    @keyframes scan {
+      0% { top: 0%; opacity: 0.2; }
+      15% { opacity: 0.7; }
+      85% { opacity: 0.7; }
+      100% { top: 100%; opacity: 0.2; }
+    }
+
+    /* ============ HEADER ============ */
+    .header {
+      position: relative;
+      padding: 18px 18px 8px;
+      z-index: 6;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    .header:active { cursor: grabbing; }
+    .title {
+      color: #fff;
+      font-size: 17px;
+      line-height: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px #d000ff, 0 0 15px #8c00ff;
+      pointer-events: none;
+    }
+    .title span { display: block; }
+
+    .close {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 21px;
+      font-weight: bold;
+      background: #7d00d8;
+      box-shadow: 0 0 10px #b900ff, inset 0 0 8px rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: 0.15s;
+      z-index: 7;
+    }
+    .close:active { transform: scale(0.9); }
+
+    /* ============ DISPLAY ============ */
+    .display {
+      margin: 5px 8px 14px;
+      height: 160px;
+      border-radius: 20px;
+      background: #000000 !important;
+      background-image: none !important;
+      border: none;
+      box-shadow: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      z-index: 6;
+    }
+    .display::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(140, 0, 255, 0.5) 25%, rgba(180, 100, 255, 0.75) 50%, rgba(140, 0, 255, 0.5) 75%, transparent 100%);
+      box-shadow: 0 0 3px rgba(140, 0, 255, 0.35);
+    }
+    .display::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(140, 0, 255, 0.5) 25%, rgba(180, 100, 255, 0.75) 50%, rgba(140, 0, 255, 0.5) 75%, transparent 100%);
+      box-shadow: 0 0 3px rgba(140, 0, 255, 0.35);
+    }
+
+    .status {
+      color: #35ff19;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 0 0 6px #00ff00, 0 0 15px #00ff00;
+    }
+
+    .result {
+      display: none;
+      color: #ffff00;
+      font-size: 30px;
+      font-weight: 1000;
+      letter-spacing: 2px;
+      text-shadow: 0 0 6px #ffffff, 0 0 14px #ffff00, 0 0 28px #ffcc00;
+    }
+    .result.show { display: block; }
+
+    .period-text {
+      display: none;
+      color: #d4b8ff;
+      font-size: 12.8px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-top: 6px;
+      text-shadow: 0 0 5px #a000ff, 0 0 10px #7a00cc;
+    }
+    .period-text.show { display: block; }
+
+    /* ============ BUTTON ============ */
+    #changeBtn {
+      width: calc(100% - 36px);
+      height: 49px;
+      margin: 0 18px 18px;
+      border: 1px solid rgba(218, 78, 255, 0.75);
+      border-radius: 16px;
+      color: #f4d9ff;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #250039, #7c0ac1, #32004d);
+      box-shadow: 0 0 10px rgba(180, 0, 255, 0.45), inset 0 0 18px rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      transition: 0.1s;
+      position: relative;
+      z-index: 6;
+    }
+    #changeBtn:active {
+      transform: scale(0.96);
+      box-shadow: 0 0 25px #c000ff, inset 0 0 20px rgba(255, 255, 255, 0.12);
+    }
+
+    @media (max-width: 420px) {
+      #panel { width: 290px; max-width: 88vw; right: 8px; }
+      .display { height: 150px; margin: 5px 6px 14px; }
+      .title { font-size: 15px; }
+      .result { font-size: 27px; letter-spacing: 2px; }
+      .period-text { font-size: 11.8px; }
+      .status { font-size: 16px; }
+      .side-line.left, .side-line.right { width: 3px; height: 28%; }
+      .side-line.top, .side-line.bottom { height: 3px; width: 28%; }
+      .scan-line { height: 1.8px; }
+      #floating { width: 48px; height: 48px; }
+      #changeBtn { height: 46px; font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ WEBSITE ============ -->
+  <iframe id="website" src="https://13l.bet/register?inviteCode=343LDAN&from=web"></iframe>
+
+  <!-- ============ FLOATING CIRCLE ============ -->
+  <div id="floating">
+    <img id="circleLogo" class="logo-img" src="" alt="" style="display:none;">
+    <span id="aiText">AI</span>
+  </div>
+
+  <!-- ============ PANEL ============ -->
+  <div id="panel">
+    <div class="scan-line"></div>
+    <div class="side-line left"></div>
+    <div class="side-line right"></div>
+    <div class="side-line top"></div>
+    <div class="side-line bottom"></div>
+
+    <div class="header" id="dragHandle">
+      <div class="title">
+        9X NUMBER PANEL
+        <span></span>
+      </div>
+      <div class="close" onclick="closePanel()">×</div>
+    </div>
+
+    <div class="display">
+      <div id="ready" class="status">SYSTEM READY</div>
+      <div id="result" class="result">BIG 8</div>
+      <div id="period" class="period-text">PERIOD: 10821</div>
+    </div>
+
+    <button id="changeBtn" onclick="changeResult()">NEXT NUMBER</button>
+  </div>
+
+  <!-- ==================================================
+       FIREBASE SDK
+       ================================================== -->
+  <script type="module">
+    // 🔥 Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    /* ==================================================
+       🔥 APNA FIREBASE CONFIG YAHAN DAALO
+       ==================================================
+       Firebase Console > Project Settings > Your apps > Web
+       se config copy karo aur niche paste karo. */
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Xfdl2xETQbdh349ebSC96rTZeJ5d9Fg",
+  authDomain: "hivenahs.firebaseapp.com",
+  databaseURL: "https://hivenahs-default-rtdb.firebaseio.com",
+  projectId: "hivenahs",
+  storageBucket: "hivenahs.firebasestorage.app",
+  messagingSenderId: "926856111909",
+  appId: "1:926856111909:web:a433ac230c5c7ed84fdccc",
+  measurementId: "G-1NG38BF8WF"
+    };
+
+    // Firebase init
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    /* ==================================================
+       🔥 ADMIN SE PREDICTION SUNO
+       ==================================================
+       Firebase Realtime Database mein "prediction" node
+       banana hai jisme ye fields ho:
+
+       prediction/
+          result: "BIG 7"     <-- admin yahan set karega
+          period: 10821       <-- admin yahan set karega
+    */
+
+    const predictionRef = ref(db, "prediction");
+
+    let adminResult = null;
+    let adminPeriod = null;
+
+    onValue(predictionRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        adminResult = data.result || null;
+        adminPeriod = data.period || null;
+        console.log("🔥 Admin Prediction:", adminResult, "Period:", adminPeriod);
+      }
+    });
+
+    /* ==================================================
+       🔥 GLOBAL FUNCTION - NEXT NUMBER
+       ================================================== */
+    window.changeResult = function () {
+      const ready = document.getElementById("ready");
+      const result = document.getElementById("result");
+      const period = document.getElementById("period");
+
+      // Agar admin ne prediction set kiya hai to wahi dikhao
+      let displayText;
+      let periodText;
+
+      if (adminResult && adminResult.trim() !== "") {
+        displayText = adminResult;               // jaise "BIG 7"
+      } else {
+        // Warna random (fallback)
+        const number = Math.floor(Math.random() * 10);
+        const type = number >= 5 ? "BIG" : "SMALL";
+        displayText = type + " " + number;
+      }
+
+      if (adminPeriod && adminPeriod.toString().trim() !== "") {
+        periodText = "PERIOD: " + adminPeriod;
+      } else {
+        periodText = "PERIOD: " + Math.floor(10000 + Math.random() * 90000);
+      }
+
+      ready.style.display = "none";
+      result.classList.remove("show");
+      period.classList.remove("show");
+
+      setTimeout(() => {
+        result.innerHTML = displayText;
+        period.innerHTML = periodText;
+        result.classList.add("show");
+        period.classList.add("show");
+      }, 150);
+    };
+
+    /* ==================================================
+       🔥 PANEL OPEN / CLOSE
+       ================================================== */
+    window.openPanel = function () {
+      const panel = document.getElementById("panel");
+      panel.style.left = "auto";
+      panel.style.right = "12px";
+      panel.style.top = "50%";
+      panel.style.transform = "translate(120%, -50%) scale(0.75)";
+
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          panel.classList.add("active");
+          panel.style.transform = "translate(0, -50%) scale(1)";
+        }, 20);
+      });
+
+      document.getElementById("floating").style.display = "none";
+    };
+
+    window.closePanel = function () {
+      const panel = document.getElementById("panel");
+      panel.classList.remove("active");
+      panel.style.transform = "translate(120%, -50%) scale(0.75)";
+      document.getElementById("floating").style.display = "flex";
+    };
+
+    /* ==================================================
+       🔥 LOGO SETUP
+       ================================================== */
+    const LOGO_URL = "https://i.ibb.co/CCrVBs7/IMG-20260920-125410-264.jpg";
+    if (LOGO_URL && LOGO_URL.trim() !== "") {
+      const logoImg = document.getElementById("circleLogo");
+      const aiText = document.getElementById("aiText");
+      logoImg.src = LOGO_URL;
+      logoImg.style.display = "block";
+      aiText.style.display = "none";
+    }
+
+    /* ==================================================
+       🔥 PANEL DRAG
+       ================================================== */
+    const panel = document.getElementById("panel");
+    const dragHandle = document.getElementById("dragHandle");
+
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initialLeft = 0, initialTop = 0;
+
+    function dragStart(e) {
+      if (e.target.closest(".close")) return;
+      isDragging = true;
+      panel.classList.add("dragging");
+
+      const point = e.touches ? e.touches[0] : e;
+      startX = point.clientX;
+      startY = point.clientY;
+
+      const rect = panel.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+
+      panel.style.transform = "none";
+      panel.style.right = "auto";
+      panel.style.left = initialLeft + "px";
+      panel.style.top = initialTop + "px";
+
+      e.preventDefault();
+    }
+
+    function dragMove(e) {
+      if (!isDragging) return;
+      const point = e.touches ? e.touches[0] : e;
+      let dx = point.clientX - startX;
+      let dy = point.clientY - startY;
+      let newLeft = initialLeft + dx;
+      let newTop = initialTop + dy;
+
+      const panelW = panel.offsetWidth;
+      const panelH = panel.offsetHeight;
+      const maxLeft = window.innerWidth - panelW;
+      const maxTop = window.innerHeight - panelH;
+
+      if (newLeft < 0) newLeft = 0;
+      if (newTop < 0) newTop = 0;
+      if (newLeft > maxLeft) newLeft = maxLeft;
+      if (newTop > maxTop) newTop = maxTop;
+
+      panel.style.left = newLeft + "px";
+      panel.style.top = newTop + "px";
+      e.preventDefault();
+    }
+
+    function dragEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      panel.classList.remove("dragging");
+    }
+
+    dragHandle.addEventListener("mousedown", dragStart);
+    document.addEventListener("mousemove", dragMove);
+    document.addEventListener("mouseup", dragEnd);
+    dragHandle.addEventListener("touchstart", dragStart, { passive: false });
+    document.addEventListener("touchmove", dragMove, { passive: false });
+    document.addEventListener("touchend", dragEnd);
+
+    /* ==================================================
+       🔥 FLOATING CIRCLE DRAG
+       ================================================== */
+    const floating = document.getElementById("floating");
+
+    let circleDragging = false;
+    let circleStartX = 0, circleStartY = 0;
+    let circleInitialLeft = 0, circleInitialTop = 0;
+    let circleMoved = false;
+
+    function circleDragStart(e) {
+      circleDragging = true;
+      circleMoved = false;
+      floating.classList.add("dragging");
+
+      const point = e.touches ? e.touches[0] : e;
+      circleStartX = point.clientX;
+      circleStartY = point.clientY;
+
+      const rect = floating.getBoundingClientRect();
+      circleInitialLeft = rect.left;
+      circleInitialTop = rect.top;
+
+      floating.style.right = "auto";
+      floating.style.top = "auto";
+      floating.style.left = circleInitialLeft + "px";
+      floating.style.top = circleInitialTop + "px";
+
+      e.preventDefault();
+    }
+
+    function circleDragMove(e) {
+      if (!circleDragging) return;
+
+      const point = e.touches ? e.touches[0] : e;
+      let dx = point.clientX - circleStartX;
+      let dy = point.clientY - circleStartY;
+
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) circleMoved = true;
+
+      let newLeft = circleInitialLeft + dx;
+      let newTop = circleInitialTop + dy;
+
+      const size = 52;
+      const maxLeft = window.innerWidth - size;
+      const maxTop = window.innerHeight - size;
+
+      if (newLeft < 0) newLeft = 0;
+      if (newTop < 0) newTop = 0;
+      if (newLeft > maxLeft) newLeft = maxLeft;
+      if (newTop > maxTop) newTop = maxTop;
+
+      floating.style.left = newLeft + "px";
+      floating.style.top = newTop + "px";
+
+      e.preventDefault();
+    }
+
+    function circleDragEnd(e) {
+      if (!circleDragging) return;
+      circleDragging = false;
+      floating.classList.remove("dragging");
+
+      if (!circleMoved) window.openPanel();
+    }
+
+    floating.addEventListener("mousedown", circleDragStart);
+    document.addEventListener("mousemove", circleDragMove);
+    document.addEventListener("mouseup", circleDragEnd);
+    floating.addEventListener("touchstart", circleDragStart, { passive: false });
+    document.addEventListener("touchmove", circleDragMove, { passive: false });
+    document.addEventListener("touchend", circleDragEnd);
+
+  </script>
+
+</body>
+</html>
