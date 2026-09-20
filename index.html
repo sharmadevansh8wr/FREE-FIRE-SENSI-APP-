@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>9X NUMBER PANEL</title>
+  <title>𝟵𝗫 𝗩𝗜𝗣 𝗡𝗨𝗠𝗕𝗘𝗥 𝗣𝗔𝗡𝗘𝗟</title>
   <style>
     * {
       box-sizing: border-box;
@@ -73,19 +73,19 @@
       50% { transform: translateY(-6px); }
     }
 
-    /* ============ PANEL ============ */
+    /* ============ PANEL (CHOTA KIYA) ============ */
     #panel {
       position: fixed;
       z-index: 100000;
       right: 12px;
       top: 50%;
       left: auto;
-      width: 310px;
-      max-width: 88vw;
+      width: 270px;                 /* 310px se 270px */
+      max-width: 85vw;
       transform: translate(120%, -50%) scale(0.75);
       opacity: 0;
       pointer-events: none;
-      border-radius: 26px;
+      border-radius: 22px;
       background: linear-gradient(145deg, #1a0028, #0a0010);
       border: 1px solid rgba(211, 92, 255, 0.55);
       box-shadow: 0 0 12px #7900a8, 0 0 35px rgba(159, 0, 255, 0.55), inset 0 0 35px rgba(142, 0, 255, 0.18);
@@ -108,10 +108,10 @@
       z-index: 10;
       pointer-events: none;
     }
-    .side-line.left { left: 6px; top: 50%; transform: translateY(-50%); width: 4px; height: 30%; }
-    .side-line.right { right: 6px; top: 50%; transform: translateY(-50%); width: 4px; height: 30%; }
-    .side-line.top { top: 6px; left: 50%; transform: translateX(-50%); width: 30%; height: 4px; }
-    .side-line.bottom { bottom: 6px; left: 50%; transform: translateX(-50%); width: 30%; height: 4px; }
+    .side-line.left { left: 5px; top: 50%; transform: translateY(-50%); width: 3px; height: 30%; }
+    .side-line.right { right: 5px; top: 50%; transform: translateY(-50%); width: 3px; height: 30%; }
+    .side-line.top { top: 5px; left: 50%; transform: translateX(-50%); width: 30%; height: 3px; }
+    .side-line.bottom { bottom: 5px; left: 50%; transform: translateX(-50%); width: 30%; height: 3px; }
 
     /* ============ SCAN LINE ============ */
     .scan-line {
@@ -137,7 +137,7 @@
     /* ============ HEADER ============ */
     .header {
       position: relative;
-      padding: 18px 18px 8px;
+      padding: 14px 14px 6px;
       z-index: 6;
       cursor: grab;
       touch-action: none;
@@ -146,8 +146,8 @@
     .header:active { cursor: grabbing; }
     .title {
       color: #fff;
-      font-size: 17px;
-      line-height: 20px;
+      font-size: 14px;
+      line-height: 17px;
       font-weight: 900;
       letter-spacing: 1px;
       text-shadow: 0 0 8px #d000ff, 0 0 15px #8c00ff;
@@ -157,16 +157,16 @@
 
     .close {
       position: absolute;
-      right: 14px;
-      top: 14px;
-      width: 30px;
-      height: 30px;
+      right: 12px;
+      top: 10px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-size: 21px;
+      font-size: 18px;
       font-weight: bold;
       background: #7d00d8;
       box-shadow: 0 0 10px #b900ff, inset 0 0 8px rgba(255, 255, 255, 0.3);
@@ -176,11 +176,11 @@
     }
     .close:active { transform: scale(0.9); }
 
-    /* ============ DISPLAY ============ */
+    /* ============ DISPLAY (CHOTA) ============ */
     .display {
-      margin: 5px 8px 14px;
-      height: 160px;
-      border-radius: 20px;
+      margin: 4px 7px 10px;
+      height: 125px;                /* 160px se 125px */
+      border-radius: 16px;
       background: #000000 !important;
       background-image: none !important;
       border: none;
@@ -212,7 +212,7 @@
 
     .status {
       color: #35ff19;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 900;
       letter-spacing: 2px;
       text-shadow: 0 0 6px #00ff00, 0 0 15px #00ff00;
@@ -221,7 +221,7 @@
     .result {
       display: none;
       color: #ffff00;
-      font-size: 30px;
+      font-size: 26px;              /* 30px se 26px */
       font-weight: 1000;
       letter-spacing: 2px;
       text-shadow: 0 0 6px #ffffff, 0 0 14px #ffff00, 0 0 28px #ffcc00;
@@ -231,23 +231,23 @@
     .period-text {
       display: none;
       color: #d4b8ff;
-      font-size: 12.8px;
+      font-size: 11.5px;
       font-weight: 700;
       letter-spacing: 2px;
-      margin-top: 6px;
+      margin-top: 5px;
       text-shadow: 0 0 5px #a000ff, 0 0 10px #7a00cc;
     }
     .period-text.show { display: block; }
 
-    /* ============ BUTTON ============ */
+    /* ============ BUTTON (CHOTA) ============ */
     #changeBtn {
-      width: calc(100% - 36px);
-      height: 49px;
-      margin: 0 18px 18px;
+      width: calc(100% - 28px);
+      height: 42px;                  /* 49px se 42px */
+      margin: 0 14px 14px;
       border: 1px solid rgba(218, 78, 255, 0.75);
-      border-radius: 16px;
+      border-radius: 13px;
       color: #f4d9ff;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 900;
       letter-spacing: 2px;
       background: linear-gradient(135deg, #250039, #7c0ac1, #32004d);
@@ -262,18 +262,19 @@
       box-shadow: 0 0 25px #c000ff, inset 0 0 20px rgba(255, 255, 255, 0.12);
     }
 
+    /* ============ MOBILE ============ */
     @media (max-width: 420px) {
-      #panel { width: 290px; max-width: 88vw; right: 8px; }
-      .display { height: 150px; margin: 5px 6px 14px; }
-      .title { font-size: 15px; }
-      .result { font-size: 27px; letter-spacing: 2px; }
-      .period-text { font-size: 11.8px; }
-      .status { font-size: 16px; }
+      #panel { width: 250px; max-width: 85vw; right: 8px; }
+      .display { height: 115px; margin: 4px 6px 10px; }
+      .title { font-size: 13px; }
+      .result { font-size: 24px; letter-spacing: 2px; }
+      .period-text { font-size: 10.5px; }
+      .status { font-size: 14px; }
       .side-line.left, .side-line.right { width: 3px; height: 28%; }
       .side-line.top, .side-line.bottom { height: 3px; width: 28%; }
       .scan-line { height: 1.8px; }
       #floating { width: 48px; height: 48px; }
-      #changeBtn { height: 46px; font-size: 15px; }
+      #changeBtn { height: 40px; font-size: 13px; }
     }
   </style>
 </head>
@@ -298,7 +299,7 @@
 
     <div class="header" id="dragHandle">
       <div class="title">
-        9X NUMBER PANEL
+        𝟵𝗫 𝗩𝗜𝗣 𝗡𝗨𝗠𝗕𝗘𝗥 𝗣𝗔𝗡𝗘𝗟
         <span></span>
       </div>
       <div class="close" onclick="closePanel()">×</div>
@@ -314,18 +315,15 @@
   </div>
 
   <!-- ==================================================
-       FIREBASE SDK
+       FIREBASE
        ================================================== -->
   <script type="module">
-    // 🔥 Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     /* ==================================================
        🔥 APNA FIREBASE CONFIG YAHAN DAALO
-       ==================================================
-       Firebase Console > Project Settings > Your apps > Web
-       se config copy karo aur niche paste karo. */
+       ================================================== */
     const firebaseConfig = {
       apiKey: "AIzaSyA0Xfdl2xETQbdh349ebSC96rTZeJ5d9Fg",
   authDomain: "hivenahs.firebaseapp.com",
@@ -337,21 +335,12 @@
   measurementId: "G-1NG38BF8WF"
     };
 
-    // Firebase init
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
     /* ==================================================
-       🔥 ADMIN SE PREDICTION SUNO
-       ==================================================
-       Firebase Realtime Database mein "prediction" node
-       banana hai jisme ye fields ho:
-
-       prediction/
-          result: "BIG 7"     <-- admin yahan set karega
-          period: 10821       <-- admin yahan set karega
-    */
-
+       🔥 ADMIN PREDICTION SUNO
+       ================================================== */
     const predictionRef = ref(db, "prediction");
 
     let adminResult = null;
@@ -367,21 +356,19 @@
     });
 
     /* ==================================================
-       🔥 GLOBAL FUNCTION - NEXT NUMBER
+       🔥 NEXT NUMBER FUNCTION
        ================================================== */
     window.changeResult = function () {
       const ready = document.getElementById("ready");
       const result = document.getElementById("result");
       const period = document.getElementById("period");
 
-      // Agar admin ne prediction set kiya hai to wahi dikhao
       let displayText;
       let periodText;
 
       if (adminResult && adminResult.trim() !== "") {
-        displayText = adminResult;               // jaise "BIG 7"
+        displayText = adminResult;
       } else {
-        // Warna random (fallback)
         const number = Math.floor(Math.random() * 10);
         const type = number >= 5 ? "BIG" : "SMALL";
         displayText = type + " " + number;
@@ -433,9 +420,9 @@
     };
 
     /* ==================================================
-       🔥 LOGO SETUP
+       🔥 LOGO
        ================================================== */
-    const LOGO_URL = "https://i.ibb.co/CCrVBs7/IMG-20260920-125410-264.jpg";
+    const LOGO_URL = "https://i.ibb.co/NdRf3G3Y/IMG-20260920-123854-994.jpg";
     if (LOGO_URL && LOGO_URL.trim() !== "") {
       const logoImg = document.getElementById("circleLogo");
       const aiText = document.getElementById("aiText");
